@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0a0f16">
+<meta name="theme-color" content="#0d0d0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,162 +13,206 @@
 <link rel="manifest" href="manifest.json">
 <title>Problem Scanner</title>
 <style>
+/* Monochrome: one warm-neutral hue, distinguished only by value.
+   Emphasis is carried by inversion (light-on-dark), never by hue. */
 :root{
-  --bg:#0a0f16; --card:#121a24; --card2:#18222f;
-  --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.14);
-  --text:#e8eef6; --muted:#8496ab;
-  --teal:#2dd4bf; --teal2:#5eead4; --teal-dim:rgba(45,212,191,.12);
-  --amber:#f0b429; --amber-dim:rgba(240,180,41,.1);
-  --rose:#f2726f; --rose-dim:rgba(242,114,111,.1);
-  --green:#4ade80; --green-dim:rgba(74,222,128,.1);
-  --grad:linear-gradient(135deg,#2dd4bf,#38bdf8);
+  --bg:#0d0d0c;
+  --s1:#161615;      /* card            */
+  --s2:#201f1d;      /* raised control  */
+  --s3:#2b2a27;      /* pressed / well  */
+  --line:rgba(255,255,255,.09);
+  --line2:rgba(255,255,255,.17);
+  --ink:#f2f1ed;     /* primary text    */
+  --ink2:#b8b4ab;    /* secondary       */
+  --ink3:#8f8a81;    /* muted — kept ≥4.5:1 on every surface it sits on */
+  --inv:#efece4;     /* inverted ground */
+  --inv-ink:#141310; /* inverted text   */
+  --serif:ui-serif,Georgia,"Iowan Old Style","Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
-html,body{background:var(--bg);color:var(--text);
+html,body{background:var(--bg);color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   -webkit-font-smoothing:antialiased;line-height:1.5}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;user-select:none;touch-action:manipulation}
-#app{max-width:540px;margin:0 auto;padding:20px 16px calc(96px + env(safe-area-inset-bottom))}
+#app{max-width:540px;margin:0 auto;padding:22px 16px calc(96px + env(safe-area-inset-bottom))}
 
-.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.head h1{font-size:21px;font-weight:800;letter-spacing:-.02em}
-.head h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.head .cnt{font-size:12px;color:var(--muted);font-weight:600}
+.head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px;
+  padding-bottom:14px;border-bottom:1px solid var(--line)}
+.head h1{font-size:20px;font-weight:600;letter-spacing:.01em;font-family:var(--serif)}
+.head h1 em{font-style:italic;color:var(--ink2)}
+.head .cnt{font-size:11px;color:var(--ink3);font-weight:600;font-family:var(--mono)}
 
-.lbl{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:24px 2px 10px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+.lbl{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);
+  font-weight:700;margin:26px 2px 10px}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:18px}
 
-.btn{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:11px 18px;font-weight:700;font-size:14px;transition:transform .12s ease,opacity .15s}
-.btn:active{transform:scale(.96)}
-.btn.primary{background:var(--grad);border:none;color:#05201d;box-shadow:0 4px 20px rgba(45,212,191,.25)}
+.btn{background:var(--s2);border:1px solid var(--line2);border-radius:11px;padding:11px 18px;
+  font-weight:600;font-size:14px;transition:transform .12s ease,background .15s}
+.btn:active{transform:scale(.96);background:var(--s3)}
+.btn.primary{background:var(--inv);border-color:var(--inv);color:var(--inv-ink);font-weight:700}
+.btn.primary:active{background:#dad7cf}
 .btn.wide{width:100%;padding:14px}
-.btn.sm{padding:7px 13px;font-size:13px;border-radius:10px}
-.btn.danger{border-color:rgba(242,114,111,.4);color:var(--rose)}
+.btn.sm{padding:8px 14px;font-size:13px;border-radius:10px}
+.btn.danger{color:var(--ink2);border-style:dashed}
 .btn[disabled]{opacity:.45;pointer-events:none}
 
 /* scan */
-.dropzone{border:1.5px dashed var(--border2);border-radius:18px;padding:38px 20px;text-align:center;
-  background:var(--card);transition:border-color .2s,background .2s}
-.dropzone:active{border-color:var(--teal);background:var(--teal-dim)}
-.dropzone .ic{font-size:42px;display:block;margin-bottom:12px;line-height:1}
-.dropzone .t{display:block;font-size:16px;font-weight:700;margin-bottom:5px}
-.dropzone .s{display:block;font-size:13px;color:var(--muted);font-weight:500}
+.dropzone{border:1px dashed var(--line2);border-radius:16px;padding:40px 20px;text-align:center;
+  background:var(--s1);transition:border-color .2s,background .2s}
+.dropzone:active{border-color:var(--ink2);background:var(--s2)}
+.dropzone .ic{display:block;width:34px;height:34px;margin:0 auto 14px;
+  border:1.5px solid var(--ink2);border-radius:7px;position:relative}
+.dropzone .ic::after{content:"";position:absolute;inset:8px;border:1.5px solid var(--ink3);border-radius:50%}
+.dropzone .t{display:block;font-size:16px;font-weight:600;margin-bottom:6px;font-family:var(--serif)}
+.dropzone .s{display:block;font-size:13px;color:var(--ink3);font-weight:500}
 .shots{display:flex;gap:10px;margin-top:12px}
 .shots .btn{flex:1}
 
-.preview{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--border);background:#000}
+.preview{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#000}
 .preview img{width:100%;display:block;max-height:340px;object-fit:contain}
 .preview .x{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;
-  background:rgba(0,0,0,.7);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:15px}
+  background:rgba(0,0,0,.72);border:1px solid var(--line2);display:flex;align-items:center;
+  justify-content:center;font-size:15px;color:var(--ink)}
 .noteRow{margin-top:10px}
-.noteRow input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;
+.noteRow input{width:100%;background:var(--s1);border:1px solid var(--line);border-radius:11px;
   padding:12px 14px;font-size:14px;outline:none}
-.noteRow input:focus{border-color:var(--teal)}
-.noteRow input::placeholder{color:var(--muted)}
+.noteRow input:focus{border-color:var(--line2)}
+.noteRow input::placeholder{color:var(--ink3)}
 
 /* loading */
-.loading{text-align:center;padding:36px 20px}
-.spin{width:38px;height:38px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--teal);
-  border-radius:50%;margin:0 auto 16px;animation:sp .8s linear infinite}
+.loading{text-align:center;padding:38px 20px}
+.spin{width:34px;height:34px;border:2px solid rgba(255,255,255,.12);border-top-color:var(--ink);
+  border-radius:50%;margin:0 auto 18px;animation:sp .9s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.loading .st{font-size:15px;font-weight:700}
-.loading .ss{font-size:13px;color:var(--muted);margin-top:6px;font-weight:500}
+.loading .st{font-size:16px;font-weight:600;font-family:var(--serif)}
+.loading .ss{font-size:13px;color:var(--ink3);margin-top:7px;font-weight:500}
 
-/* result */
-.chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
-.chip{background:var(--teal-dim);border:1px solid rgba(45,212,191,.3);color:var(--teal2);
-  border-radius:99px;padding:5px 12px;font-size:12px;font-weight:700}
-.chip.sub{background:rgba(255,255,255,.06);border-color:var(--border2);color:var(--text)}
-.sec{margin-bottom:14px}
+/* result — hierarchy by value and inversion, never by hue */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.chip{background:transparent;border:1px solid var(--line2);color:var(--ink2);
+  border-radius:6px;padding:4px 9px;font-size:11.5px;font-weight:600;font-family:var(--mono)}
+.chip.sub{background:var(--s3);border-color:transparent;color:var(--ink);
+  font-family:inherit;font-weight:700;border-radius:99px;padding:4px 12px;font-size:12px}
+.sec{margin-bottom:18px}
 .sec:last-child{margin-bottom:0}
-.sec .h{font-size:11px;letter-spacing:.11em;text-transform:uppercase;font-weight:700;margin-bottom:6px;
-  display:flex;align-items:center;gap:6px}
-.sec .b{font-size:15px;line-height:1.6}
-.sec.did .h{color:var(--muted)}
-.sec.mistake{background:var(--rose-dim);border-left:3px solid var(--rose);border-radius:0 12px 12px 0;padding:12px 14px}
-.sec.mistake .h{color:var(--rose)}
-.sec.why .h{color:var(--muted)}
-.sec.rule{background:var(--green-dim);border-left:3px solid var(--green);border-radius:0 12px 12px 0;padding:12px 14px}
-.sec.rule .h{color:var(--green)}
-.sec.fix .h{color:var(--teal2)}
-.callout{background:var(--amber-dim);border:1px solid rgba(240,180,41,.3);border-radius:14px;padding:14px;margin-bottom:16px}
-.callout .h{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:7px}
-.callout .b{font-size:14.5px;line-height:1.6}
-.callout .refs{margin-top:10px;display:flex;flex-direction:column;gap:6px}
-.callout .ref{font-size:12.5px;color:var(--muted);font-weight:600}
-.callout .ref b{color:var(--text);font-weight:700}
-.usage{font-size:11.5px;color:var(--muted);font-weight:600;text-align:center;margin-top:14px}
+.sec .h{font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:700;
+  margin-bottom:7px;color:var(--ink3)}
+.sec .b{font-size:15.5px;line-height:1.62;font-family:var(--serif);color:var(--ink2)}
 
-.unreadable{text-align:center;padding:26px 16px}
-.unreadable .ic{font-size:38px;display:block;margin-bottom:12px}
-.unreadable .t{font-size:16px;font-weight:700;margin-bottom:7px}
-.unreadable .s{font-size:14px;color:var(--muted);line-height:1.6}
+/* The mistake: heaviest dark treatment — a rule in the margin, brightest text. */
+.sec.mistake{border-left:2px solid var(--ink);padding:2px 0 2px 15px;margin-left:1px}
+.sec.mistake .h{color:var(--ink)}
+.sec.mistake .b{color:var(--ink);font-size:16.5px}
+
+/* The rule to remember: the one inverted block on the page. */
+.sec.rule{background:var(--inv);color:var(--inv-ink);border-radius:12px;padding:16px 17px}
+.sec.rule .h{color:rgba(20,19,16,.55)}
+.sec.rule .b{color:var(--inv-ink);font-weight:500;font-size:16.5px}
+
+.callout{border:1px solid var(--line2);border-radius:12px;padding:15px 16px;margin-bottom:18px;
+  background:var(--s2);position:relative}
+.callout .h{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink);
+  font-weight:700;margin-bottom:8px}
+.callout .b{font-size:14.5px;line-height:1.6;font-family:var(--serif);color:var(--ink)}
+.callout .refs{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line2);
+  display:flex;flex-direction:column;gap:7px}
+.callout .ref{font-size:12.5px;color:var(--ink3);font-weight:500;line-height:1.5}
+.callout .ref b{color:var(--ink2);font-weight:600;font-family:var(--mono);font-size:11.5px}
+.usage{font-size:11px;color:var(--ink3);font-weight:500;text-align:center;margin-top:16px;font-family:var(--mono)}
+
+.unreadable{text-align:center;padding:30px 18px}
+.unreadable .ic{display:block;width:32px;height:32px;margin:0 auto 14px;
+  border:1.5px dashed var(--ink3);border-radius:50%}
+.unreadable .t{font-size:17px;font-weight:600;margin-bottom:8px;font-family:var(--serif)}
+.unreadable .s{font-size:14.5px;color:var(--ink3);line-height:1.6;font-family:var(--serif)}
 
 /* history */
-.hgroup{margin-bottom:22px}
-.hgroup .gh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:9px;padding:0 2px}
-.hgroup .gn{font-size:15px;font-weight:800}
-.hgroup .gc{font-size:12px;color:var(--muted);font-weight:600}
-.entry{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:8px;overflow:hidden}
-.entry .top{padding:13px 14px;display:flex;align-items:flex-start;gap:11px}
+.hgroup{margin-bottom:24px}
+.hgroup .gh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;
+  padding:0 2px 8px;border-bottom:1px solid var(--line)}
+.hgroup .gn{font-size:16px;font-weight:600;font-family:var(--serif)}
+.hgroup .gc{font-size:11px;color:var(--ink3);font-weight:600;font-family:var(--mono)}
+.entry{background:var(--s1);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.entry .top{padding:14px;display:flex;align-items:flex-start;gap:12px}
 .entry .grow{flex:1;min-width:0}
-.entry .ec{font-size:14px;font-weight:700;margin-bottom:3px}
-.entry .em{font-size:13px;color:var(--muted);line-height:1.5}
-.entry .ed{font-size:11px;color:var(--muted);font-weight:700;white-space:nowrap;padding-top:2px}
-.entry .body{padding:0 14px 14px;border-top:1px solid var(--border);margin-top:2px;padding-top:13px}
-.entry .rowtag{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.tag{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;
-  padding:3px 8px;font-size:11px;color:var(--muted);font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-.tag.rep{background:var(--amber-dim);border-color:rgba(240,180,41,.35);color:var(--amber)}
+.entry .ec{font-size:15px;font-weight:600;margin-bottom:4px;font-family:var(--serif)}
+.entry .em{font-size:13.5px;color:var(--ink3);line-height:1.5}
+.entry .ed{font-size:10.5px;color:var(--ink3);font-weight:600;white-space:nowrap;
+  padding-top:3px;font-family:var(--mono)}
+.entry .body{padding:0 14px 14px;border-top:1px solid var(--line);margin-top:2px;padding-top:14px}
+.entry .rowtag{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.tag{background:transparent;border:1px solid var(--line);border-radius:5px;
+  padding:3px 8px;font-size:10.5px;color:var(--ink3);font-weight:600;font-family:var(--mono)}
+/* A repeated concept inverts — the same emphasis language as the rule card. */
+.tag.rep{background:var(--inv);border-color:var(--inv);color:var(--inv-ink);font-weight:700}
 .repeats{display:flex;flex-direction:column;gap:8px}
-.rep-row{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid rgba(240,180,41,.25);
-  border-radius:12px;padding:12px 14px}
-.rep-row .n{width:30px;height:30px;border-radius:9px;background:var(--amber-dim);color:var(--amber);
-  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex:none}
+.rep-row{display:flex;align-items:center;gap:13px;background:var(--s1);
+  border:1px solid var(--line2);border-radius:12px;padding:13px 15px}
+.rep-row .n{width:28px;height:28px;border-radius:50%;background:var(--inv);color:var(--inv-ink);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none;
+  font-family:var(--mono)}
 .rep-row .grow{flex:1;min-width:0}
-.rep-row .rc{font-size:14px;font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-.rep-row .rs{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
+.rep-row .rc{font-size:13.5px;font-weight:600;font-family:var(--mono);color:var(--ink)}
+.rep-row .rs{font-size:12px;color:var(--ink3);font-weight:500;margin-top:3px}
 
 /* settings */
 .field{margin-bottom:18px}
-.field .fl{font-size:13px;font-weight:700;margin-bottom:7px}
-.field .fh{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:9px}
-.field input[type=password],.field input[type=text]{width:100%;background:var(--card2);border:1px solid var(--border2);
-  border-radius:12px;padding:12px 14px;font-size:14px;outline:none;
-  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-.field input:focus{border-color:var(--teal)}
-.field input::placeholder{color:var(--muted);font-family:-apple-system,sans-serif}
+.field .fl{font-size:13px;font-weight:600;margin-bottom:7px}
+.field .fh{font-size:12.5px;color:var(--ink3);line-height:1.55;margin-bottom:10px}
+.field input[type=password],.field input[type=text]{width:100%;background:var(--bg);
+  border:1px solid var(--line2);border-radius:11px;padding:12px 14px;font-size:13.5px;outline:none;
+  font-family:var(--mono)}
+.field input:focus{border-color:var(--ink3)}
+.field input::placeholder{color:var(--ink3);font-family:-apple-system,sans-serif}
 .keyrow{display:flex;gap:8px;margin-top:10px}
 .keyrow .btn{flex:1}
 .models{display:flex;gap:8px;flex-wrap:wrap}
-.mchip{background:var(--card2);border:1px solid var(--border2);border-radius:99px;padding:8px 14px;
-  font-size:13px;font-weight:700;color:var(--muted)}
-.mchip.sel{background:var(--grad);border-color:transparent;color:#05201d}
-.keystate{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;margin-bottom:10px}
-.dot{width:8px;height:8px;border-radius:50%;flex:none}
-.dot.on{background:var(--green);box-shadow:0 0 8px rgba(74,222,128,.6)}
-.dot.off{background:var(--rose)}
+.mchip{background:transparent;border:1px solid var(--line2);border-radius:99px;padding:8px 15px;
+  font-size:13px;font-weight:600;color:var(--ink3)}
+.mchip.sel{background:var(--inv);border-color:var(--inv);color:var(--inv-ink);font-weight:700}
+.keystate{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;margin-bottom:14px}
+/* Filled ring = key present, hollow = absent. Readable without hue. */
+.dot{width:9px;height:9px;border-radius:50%;flex:none;border:1.5px solid var(--ink2)}
+.dot.on{background:var(--ink);border-color:var(--ink)}
+.dot.off{background:transparent}
 .iorow{display:flex;gap:10px}
 .iorow .btn{flex:1}
 
-.empty{color:var(--muted);font-size:14px;font-weight:600;text-align:center;padding:34px 20px;
-  background:var(--card);border:1px dashed var(--border2);border-radius:16px;line-height:1.6}
-.err{background:var(--rose-dim);border:1px solid rgba(242,114,111,.35);border-radius:14px;padding:14px;margin-bottom:14px}
-.err .h{font-size:13px;font-weight:800;color:var(--rose);margin-bottom:5px}
-.err .b{font-size:13.5px;line-height:1.55}
-.err .b code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:rgba(0,0,0,.3);padding:1px 5px;border-radius:4px}
+.empty{color:var(--ink3);font-size:14.5px;font-weight:500;text-align:center;padding:36px 22px;
+  background:var(--s1);border:1px dashed var(--line2);border-radius:14px;line-height:1.65;
+  font-family:var(--serif)}
+.err{border:1px solid var(--line2);border-left:2px solid var(--ink);border-radius:0 12px 12px 0;
+  padding:14px 16px;margin-bottom:16px;background:var(--s2)}
+.err .h{font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:700;
+  color:var(--ink);margin-bottom:7px}
+.err .b{font-size:14px;line-height:1.6;color:var(--ink2);font-family:var(--serif)}
+.err .b code{font-family:var(--mono);font-size:12px;background:var(--bg);padding:2px 6px;
+  border-radius:4px;color:var(--ink)}
 
 #tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:540px;
-  display:flex;z-index:40;background:rgba(10,15,22,.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border-top:1px solid var(--border);padding:8px 6px calc(10px + env(safe-area-inset-bottom))}
-.tb{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;
-  color:var(--muted);font-size:10.5px;font-weight:700;transition:transform .12s,color .2s;padding:4px 0}
+  display:flex;z-index:40;background:rgba(13,13,12,.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--line);padding:9px 6px calc(10px + env(safe-area-inset-bottom))}
+.tb{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:5px;
+  color:var(--ink3);font-size:10px;font-weight:600;letter-spacing:.05em;
+  transition:transform .12s,color .2s;padding:4px 0}
 .tb:active{transform:scale(.92)}
-.tb .ti{font-size:20px;filter:grayscale(1);opacity:.55;transition:filter .2s,opacity .2s}
-.tb.sel{color:var(--text)}
-.tb.sel .ti{filter:none;opacity:1}
+/* Icons are drawn from borders so they stay in the monochrome system —
+   emoji would reintroduce colour the palette deliberately removes. */
+.tb .ti{width:17px;height:17px;position:relative;opacity:.5;transition:opacity .2s}
+.tb[data-tab="scan"] .ti{border:1.5px solid currentColor;border-radius:4px}
+.tb[data-tab="scan"] .ti::after{content:"";position:absolute;inset:3.5px;
+  border:1.5px solid currentColor;border-radius:50%}
+.tb[data-tab="history"] .ti{border-left:1.5px solid currentColor;border-right:1.5px solid currentColor}
+.tb[data-tab="history"] .ti::after{content:"";position:absolute;left:3px;right:3px;top:2px;bottom:2px;
+  border-top:1.5px solid currentColor;border-bottom:1.5px solid currentColor}
+.tb[data-tab="settings"] .ti{border:1.5px solid currentColor;border-radius:50%}
+.tb[data-tab="settings"] .ti::after{content:"";position:absolute;inset:4.5px;
+  background:currentColor;border-radius:50%}
+.tb.sel{color:var(--ink)}
+.tb.sel .ti{opacity:1}
 
 .tab{display:none}
 .tab.active{display:block;animation:fin .28s ease}
@@ -176,8 +220,8 @@ button{cursor:pointer;user-select:none;touch-action:manipulation}
 
 #toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom));
   z-index:60;display:flex;flex-direction:column-reverse;gap:8px;align-items:center;pointer-events:none;width:min(92vw,500px)}
-.toast{background:#1b2634;border:1px solid var(--border2);padding:10px 18px;border-radius:99px;
-  font-size:13px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.55);max-width:100%;
+.toast{background:var(--inv);color:var(--inv-ink);border:none;padding:10px 18px;border-radius:99px;
+  font-size:13px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.6);max-width:100%;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   animation:tin .25s ease,tout .35s ease 2.6s forwards}
 @keyframes tin{from{opacity:0;transform:translateY(12px) scale(.9)}to{opacity:1;transform:none}}
@@ -223,7 +267,7 @@ button{cursor:pointer;user-select:none;touch-action:manipulation}
 
       <div class="lbl">Model</div>
       <div class="card">
-        <div class="fh" style="font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:11px">
+        <div class="fh" style="font-size:12.5px;color:var(--ink3);line-height:1.55;margin-bottom:11px">
           Opus 5 is the most capable and reads messy handwriting best. Sonnet 5 and Haiku cost less per scan.
         </div>
         <div class="models" id="modelPick"></div>
@@ -231,7 +275,7 @@ button{cursor:pointer;user-select:none;touch-action:manipulation}
 
       <div class="lbl">Your data</div>
       <div class="card">
-        <div class="fh" style="font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:12px">
+        <div class="fh" style="font-size:12.5px;color:var(--ink3);line-height:1.55;margin-bottom:12px">
           Every scan is saved on this device only. Export regularly if you'd hate to lose it.
         </div>
         <div class="iorow">
@@ -247,9 +291,9 @@ button{cursor:pointer;user-select:none;touch-action:manipulation}
 </div>
 
 <nav id="tabbar">
-  <button class="tb sel" data-tab="scan"><span class="ti">📷</span>Scan</button>
-  <button class="tb" data-tab="history"><span class="ti">📚</span>History</button>
-  <button class="tb" data-tab="settings"><span class="ti">⚙️</span>Settings</button>
+  <button class="tb sel" data-tab="scan"><span class="ti"></span>Scan</button>
+  <button class="tb" data-tab="history"><span class="ti"></span>History</button>
+  <button class="tb" data-tab="settings"><span class="ti"></span>Settings</button>
 </nav>
 
 <div id="toasts"></div>
@@ -624,7 +668,7 @@ function renderScan(err, result){
 
   if(result && result.unreadable){
     html += `<div class="card unreadable">
-      <span class="ic">🔍</span>
+      <span class="ic"></span>
       <div class="t">Couldn't read that clearly</div>
       <div class="s">${esc(result.reason || "Try again with more light and the whole problem in frame.")}</div>
     </div>
@@ -645,7 +689,7 @@ function renderScan(err, result){
   if(pending){
     html += `<div class="preview">
         <img src="${pending.dataUrl}" alt="The problem you photographed">
-        <button class="x" id="dropShot" aria-label="Remove photo">✕</button>
+        <button class="x" id="dropShot" aria-label="Remove photo">&times;</button>
       </div>
       <div class="noteRow">
         <input type="text" id="noteInput" maxlength="140" placeholder="Anything to add? (optional)">
@@ -661,7 +705,7 @@ function renderScan(err, result){
   }
 
   html += `<button class="dropzone" id="shootBtn" style="width:100%;display:block">
-      <span class="ic">📸</span>
+      <span class="ic"></span>
       <span class="t">Scan a problem you got wrong</span>
       <span class="s">Include your own work, not just the question</span>
     </button>
@@ -684,7 +728,7 @@ function renderScan(err, result){
           ${last.tags.map(t => `<span class="chip">${esc(t)}</span>`).join("")}
         </div>
         <div class="sec" style="margin-bottom:0">
-          <div class="h" style="color:var(--muted)">The mistake</div>
+          <div class="h">The mistake</div>
           <div class="b" style="font-size:14.5px">${esc(last.mistake)}</div>
         </div>
       </div>`;
@@ -707,7 +751,7 @@ function renderResult(e, usage, spend){
   if(d.pattern && (d.related || []).length){
     const refs = d.related.map(id => S.entries.find(x => x.id === id)).filter(Boolean);
     html += `<div class="callout">
-      <div class="h">⟲ You've been here before</div>
+      <div class="h">You've been here before</div>
       <div class="b">${esc(d.pattern)}</div>
       ${refs.length ? `<div class="refs">${refs.map(r =>
         `<div class="ref"><b>${esc(r.date)}</b> · ${esc(r.subject)} — ${esc(r.mistake)}</div>`).join("")}</div>` : ""}
@@ -716,9 +760,9 @@ function renderResult(e, usage, spend){
 
   if(d.problem) html += `<div class="sec did"><div class="h">The problem</div><div class="b">${esc(d.problem)}</div></div>`;
   if(d.did)     html += `<div class="sec did"><div class="h">What you did</div><div class="b">${esc(d.did)}</div></div>`;
-  html += `<div class="sec mistake"><div class="h">✕ The mistake</div><div class="b">${esc(e.mistake)}</div></div>`;
+  html += `<div class="sec mistake"><div class="h">The mistake</div><div class="b">${esc(e.mistake)}</div></div>`;
   if(d.why)     html += `<div class="sec why"><div class="h">Why it's easy to miss</div><div class="b">${esc(d.why)}</div></div>`;
-  html += `<div class="sec rule"><div class="h">✓ The rule to remember</div><div class="b">${esc(e.explanation)}</div></div>`;
+  html += `<div class="sec rule"><div class="h">The rule to remember</div><div class="b">${esc(e.explanation)}</div></div>`;
   if(d.fix)     html += `<div class="sec fix"><div class="h">Doing it right</div><div class="b">${esc(d.fix)}</div></div>`;
 
   html += `</div>`;
@@ -768,7 +812,7 @@ function renderHistory(){
           </button>
           ${open ? `<div class="body">
             ${d.did ? `<div class="sec did"><div class="h">What you did</div><div class="b" style="font-size:14px">${esc(d.did)}</div></div>` : ""}
-            <div class="sec rule" style="margin-bottom:0"><div class="h">✓ The rule</div><div class="b" style="font-size:14px">${esc(e.explanation)}</div></div>
+            <div class="sec rule" style="margin-bottom:0"><div class="h">The rule</div><div class="b" style="font-size:14px">${esc(e.explanation)}</div></div>
             ${d.fix ? `<div class="sec fix" style="margin-top:12px;margin-bottom:0"><div class="h">Doing it right</div><div class="b" style="font-size:14px">${esc(d.fix)}</div></div>` : ""}
             <button class="btn sm danger" style="margin-top:14px" data-del="${e.id}">Delete this scan</button>
           </div>` : ""}
@@ -884,8 +928,8 @@ function init(){
     if(!armedWipe){
       armedWipe = true;
       btn.textContent = "Tap again to delete everything";
-      btn.style.background = "var(--rose)";
-      btn.style.color = "#2a0a09";
+      btn.style.background = "var(--inv)";
+      btn.style.color = "var(--inv-ink)";
       clearTimeout(wipeTimer);
       wipeTimer = setTimeout(() => {
         armedWipe = false;
