@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0f16">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Scanner">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Problem Scanner</title>
+<style>
+:root{
+  --bg:#0a0f16; --card:#121a24; --card2:#18222f;
+  --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.14);
+  --text:#e8eef6; --muted:#8496ab;
+  --teal:#2dd4bf; --teal2:#5eead4; --teal-dim:rgba(45,212,191,.12);
+  --amber:#f0b429; --amber-dim:rgba(240,180,41,.1);
+  --rose:#f2726f; --rose-dim:rgba(242,114,111,.1);
+  --green:#4ade80; --green-dim:rgba(74,222,128,.1);
+  --grad:linear-gradient(135deg,#2dd4bf,#38bdf8);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;user-select:none;touch-action:manipulation}
+#app{max-width:540px;margin:0 auto;padding:20px 16px calc(96px + env(safe-area-inset-bottom))}
+
+.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.head h1{font-size:21px;font-weight:800;letter-spacing:-.02em}
+.head h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.head .cnt{font-size:12px;color:var(--muted);font-weight:600}
+
+.lbl{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:24px 2px 10px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+
+.btn{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:11px 18px;font-weight:700;font-size:14px;transition:transform .12s ease,opacity .15s}
+.btn:active{transform:scale(.96)}
+.btn.primary{background:var(--grad);border:none;color:#05201d;box-shadow:0 4px 20px rgba(45,212,191,.25)}
+.btn.wide{width:100%;padding:14px}
+.btn.sm{padding:7px 13px;font-size:13px;border-radius:10px}
+.btn.danger{border-color:rgba(242,114,111,.4);color:var(--rose)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+
+/* scan */
+.dropzone{border:1.5px dashed var(--border2);border-radius:18px;padding:38px 20px;text-align:center;
+  background:var(--card);transition:border-color .2s,background .2s}
+.dropzone:active{border-color:var(--teal);background:var(--teal-dim)}
+.dropzone .ic{font-size:42px;display:block;margin-bottom:12px;line-height:1}
+.dropzone .t{display:block;font-size:16px;font-weight:700;margin-bottom:5px}
+.dropzone .s{display:block;font-size:13px;color:var(--muted);font-weight:500}
+.shots{display:flex;gap:10px;margin-top:12px}
+.shots .btn{flex:1}
+
+.preview{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--border);background:#000}
+.preview img{width:100%;display:block;max-height:340px;object-fit:contain}
+.preview .x{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;
+  background:rgba(0,0,0,.7);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:15px}
+.noteRow{margin-top:10px}
+.noteRow input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:12px 14px;font-size:14px;outline:none}
+.noteRow input:focus{border-color:var(--teal)}
+.noteRow input::placeholder{color:var(--muted)}
+
+/* loading */
+.loading{text-align:center;padding:36px 20px}
+.spin{width:38px;height:38px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--teal);
+  border-radius:50%;margin:0 auto 16px;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loading .st{font-size:15px;font-weight:700}
+.loading .ss{font-size:13px;color:var(--muted);margin-top:6px;font-weight:500}
+
+/* result */
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.chip{background:var(--teal-dim);border:1px solid rgba(45,212,191,.3);color:var(--teal2);
+  border-radius:99px;padding:5px 12px;font-size:12px;font-weight:700}
+.chip.sub{background:rgba(255,255,255,.06);border-color:var(--border2);color:var(--text)}
+.sec{margin-bottom:14px}
+.sec:last-child{margin-bottom:0}
+.sec .h{font-size:11px;letter-spacing:.11em;text-transform:uppercase;font-weight:700;margin-bottom:6px;
+  display:flex;align-items:center;gap:6px}
+.sec .b{font-size:15px;line-height:1.6}
+.sec.did .h{color:var(--muted)}
+.sec.mistake{background:var(--rose-dim);border-left:3px solid var(--rose);border-radius:0 12px 12px 0;padding:12px 14px}
+.sec.mistake .h{color:var(--rose)}
+.sec.why .h{color:var(--muted)}
+.sec.rule{background:var(--green-dim);border-left:3px solid var(--green);border-radius:0 12px 12px 0;padding:12px 14px}
+.sec.rule .h{color:var(--green)}
+.sec.fix .h{color:var(--teal2)}
+.callout{background:var(--amber-dim);border:1px solid rgba(240,180,41,.3);border-radius:14px;padding:14px;margin-bottom:16px}
+.callout .h{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:7px}
+.callout .b{font-size:14.5px;line-height:1.6}
+.callout .refs{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.callout .ref{font-size:12.5px;color:var(--muted);font-weight:600}
+.callout .ref b{color:var(--text);font-weight:700}
+.usage{font-size:11.5px;color:var(--muted);font-weight:600;text-align:center;margin-top:14px}
+
+.unreadable{text-align:center;padding:26px 16px}
+.unreadable .ic{font-size:38px;display:block;margin-bottom:12px}
+.unreadable .t{font-size:16px;font-weight:700;margin-bottom:7px}
+.unreadable .s{font-size:14px;color:var(--muted);line-height:1.6}
+
+/* history */
+.hgroup{margin-bottom:22px}
+.hgroup .gh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:9px;padding:0 2px}
+.hgroup .gn{font-size:15px;font-weight:800}
+.hgroup .gc{font-size:12px;color:var(--muted);font-weight:600}
+.entry{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:8px;overflow:hidden}
+.entry .top{padding:13px 14px;display:flex;align-items:flex-start;gap:11px}
+.entry .grow{flex:1;min-width:0}
+.entry .ec{font-size:14px;font-weight:700;margin-bottom:3px}
+.entry .em{font-size:13px;color:var(--muted);line-height:1.5}
+.entry .ed{font-size:11px;color:var(--muted);font-weight:700;white-space:nowrap;padding-top:2px}
+.entry .body{padding:0 14px 14px;border-top:1px solid var(--border);margin-top:2px;padding-top:13px}
+.entry .rowtag{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tag{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;
+  padding:3px 8px;font-size:11px;color:var(--muted);font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.tag.rep{background:var(--amber-dim);border-color:rgba(240,180,41,.35);color:var(--amber)}
+.repeats{display:flex;flex-direction:column;gap:8px}
+.rep-row{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid rgba(240,180,41,.25);
+  border-radius:12px;padding:12px 14px}
+.rep-row .n{width:30px;height:30px;border-radius:9px;background:var(--amber-dim);color:var(--amber);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex:none}
+.rep-row .grow{flex:1;min-width:0}
+.rep-row .rc{font-size:14px;font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.rep-row .rs{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
+
+/* settings */
+.field{margin-bottom:18px}
+.field .fl{font-size:13px;font-weight:700;margin-bottom:7px}
+.field .fh{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:9px}
+.field input[type=password],.field input[type=text]{width:100%;background:var(--card2);border:1px solid var(--border2);
+  border-radius:12px;padding:12px 14px;font-size:14px;outline:none;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.field input:focus{border-color:var(--teal)}
+.field input::placeholder{color:var(--muted);font-family:-apple-system,sans-serif}
+.keyrow{display:flex;gap:8px;margin-top:10px}
+.keyrow .btn{flex:1}
+.models{display:flex;gap:8px;flex-wrap:wrap}
+.mchip{background:var(--card2);border:1px solid var(--border2);border-radius:99px;padding:8px 14px;
+  font-size:13px;font-weight:700;color:var(--muted)}
+.mchip.sel{background:var(--grad);border-color:transparent;color:#05201d}
+.keystate{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;margin-bottom:10px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.dot.on{background:var(--green);box-shadow:0 0 8px rgba(74,222,128,.6)}
+.dot.off{background:var(--rose)}
+.iorow{display:flex;gap:10px}
+.iorow .btn{flex:1}
+
+.empty{color:var(--muted);font-size:14px;font-weight:600;text-align:center;padding:34px 20px;
+  background:var(--card);border:1px dashed var(--border2);border-radius:16px;line-height:1.6}
+.err{background:var(--rose-dim);border:1px solid rgba(242,114,111,.35);border-radius:14px;padding:14px;margin-bottom:14px}
+.err .h{font-size:13px;font-weight:800;color:var(--rose);margin-bottom:5px}
+.err .b{font-size:13.5px;line-height:1.55}
+.err .b code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:rgba(0,0,0,.3);padding:1px 5px;border-radius:4px}
+
+#tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:540px;
+  display:flex;z-index:40;background:rgba(10,15,22,.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);padding:8px 6px calc(10px + env(safe-area-inset-bottom))}
+.tb{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:var(--muted);font-size:10.5px;font-weight:700;transition:transform .12s,color .2s;padding:4px 0}
+.tb:active{transform:scale(.92)}
+.tb .ti{font-size:20px;filter:grayscale(1);opacity:.55;transition:filter .2s,opacity .2s}
+.tb.sel{color:var(--text)}
+.tb.sel .ti{filter:none;opacity:1}
+
+.tab{display:none}
+.tab.active{display:block;animation:fin .28s ease}
+@keyframes fin{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+
+#toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom));
+  z-index:60;display:flex;flex-direction:column-reverse;gap:8px;align-items:center;pointer-events:none;width:min(92vw,500px)}
+.toast{background:#1b2634;border:1px solid var(--border2);padding:10px 18px;border-radius:99px;
+  font-size:13px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.55);max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  animation:tin .25s ease,tout .35s ease 2.6s forwards}
+@keyframes tin{from{opacity:0;transform:translateY(12px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes tout{to{opacity:0;transform:translateY(8px) scale(.95)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <main>
+
+    <!-- SCAN -->
+    <section class="tab active" id="tab-scan">
+      <div class="head">
+        <h1>Problem <em>Scanner</em></h1>
+        <div class="cnt" id="scanCount"></div>
+      </div>
+      <div id="scanStage"></div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="tab" id="tab-history">
+      <div class="head"><h1>History</h1><div class="cnt" id="histCount"></div></div>
+      <div id="repeatsWrap"></div>
+      <div id="histList"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="tab" id="tab-settings">
+      <div class="head"><h1>Settings</h1></div>
+
+      <div class="lbl">API key</div>
+      <div class="card">
+        <div class="keystate" id="keyState"></div>
+        <div class="field" style="margin-bottom:0">
+          <div class="fh">Your key is stored only on this device and is sent only to Anthropic's API. It is never uploaded anywhere else.</div>
+          <input type="password" id="keyInput" placeholder="sk-ant-api03-…" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <div class="keyrow">
+            <button class="btn primary sm" id="saveKey">Save key</button>
+            <button class="btn sm danger" id="clearKey">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="lbl">Model</div>
+      <div class="card">
+        <div class="fh" style="font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:11px">
+          Opus 5 is the most capable and reads messy handwriting best. Sonnet 5 and Haiku cost less per scan.
+        </div>
+        <div class="models" id="modelPick"></div>
+      </div>
+
+      <div class="lbl">Your data</div>
+      <div class="card">
+        <div class="fh" style="font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:12px">
+          Every scan is saved on this device only. Export regularly if you'd hate to lose it.
+        </div>
+        <div class="iorow">
+          <button class="btn sm" id="exportBtn">⬇︎ Export</button>
+          <button class="btn sm" id="importBtn">⬆︎ Import</button>
+          <input type="file" id="importFile" accept=".json,application/json" hidden>
+        </div>
+        <button class="btn sm danger wide" style="margin-top:10px" id="wipeBtn">Delete all scans</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<nav id="tabbar">
+  <button class="tb sel" data-tab="scan"><span class="ti">📷</span>Scan</button>
+  <button class="tb" data-tab="history"><span class="ti">📚</span>History</button>
+  <button class="tb" data-tab="settings"><span class="ti">⚙️</span>Settings</button>
+</nav>
+
+<div id="toasts"></div>
+<input type="file" id="fileCamera" accept="image/*" capture="environment" hidden>
+<input type="file" id="filePick" accept="image/*" hidden>
+
+<script>
+"use strict";
+
+/*__PURE_START__*/
+/* Pure helpers — no DOM, no network. Extracted and unit-tested before release. */
+const PURE = {
+  // Normalize a free-text concept into a stable kebab-case tag so that
+  // "Triangle Angle Sum" and "triangle angle sum" match each other.
+  slug(s){
+    return String(s).toLowerCase().trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 40);
+  },
+  cleanTags(arr){
+    if(!Array.isArray(arr)) return [];
+    const out = [];
+    for(const t of arr){
+      const s = PURE.slug(t);
+      if(s && !out.includes(s)) out.push(s);
+    }
+    return out.slice(0, 5);
+  },
+  // Longest side scaled to `max`, aspect preserved; never upscales.
+  fitSize(w, h, max){
+    if(w <= max && h <= max) return { w, h };
+    const r = w >= h ? max / w : max / h;
+    return { w: Math.round(w * r), h: Math.round(h * r) };
+  },
+  // Compact one-line index entry the model reads to spot repeats.
+  indexLine(e){
+    return `[${e.id}] ${e.date} · ${e.subject} · ${(e.tags || []).join(", ")} · ${e.mistake}`;
+  },
+  // Concepts missed 2+ times, most-missed first, then most-recent.
+  repeats(entries){
+    const m = new Map();
+    for(const e of entries){
+      for(const t of (e.tags || [])){
+        const cur = m.get(t) || { tag: t, count: 0, subject: e.subject, last: e.date };
+        cur.count++;
+        if(e.date > cur.last){ cur.last = e.date; cur.subject = e.subject; }
+        m.set(t, cur);
+      }
+    }
+    return [...m.values()].filter(r => r.count >= 2)
+      .sort((a, b) => b.count - a.count || (a.last < b.last ? 1 : -1));
+  },
+  groupBySubject(entries){
+    const m = new Map();
+    for(const e of entries){
+      const k = e.subject || "Other";
+      if(!m.has(k)) m.set(k, []);
+      m.get(k).push(e);
+    }
+    // Biggest subject first; entries newest-first inside each group.
+    return [...m.entries()]
+      .map(([subject, items]) => ({
+        subject,
+        items: items.slice().sort((a, b) => (a.ts < b.ts ? 1 : -1))
+      }))
+      .sort((a, b) => b.items.length - a.items.length || a.subject.localeCompare(b.subject));
+  },
+  // $ cost for one call. Rates are per million tokens.
+  cost(usage, rate){
+    if(!usage || !rate) return 0;
+    const inTok = (usage.input_tokens || 0)
+      + (usage.cache_creation_input_tokens || 0)
+      + (usage.cache_read_input_tokens || 0);
+    return (inTok / 1e6) * rate.in + ((usage.output_tokens || 0) / 1e6) * rate.out;
+  },
+  money(n){
+    if(n <= 0) return "$0.00";
+    return n < 0.01 ? "<$0.01" : "$" + n.toFixed(2);
+  },
+  pad(n){ return (n < 10 ? "0" : "") + n; },
+  dayKey(d){ return d.getFullYear() + "-" + PURE.pad(d.getMonth()+1) + "-" + PURE.pad(d.getDate()); },
+  // Map an HTTP status / error shape to a message a 9th grader can act on.
+  errorFor(status, apiType){
+    if(status === 401) return { h: "That key didn't work",
+      b: "Check the key in Settings — copy the whole thing including the <code>sk-ant-</code> part." };
+    if(status === 403) return { h: "Key isn't allowed to do this",
+      b: "The key exists but lacks permission for this model. Try a different model in Settings." };
+    if(status === 429) return { h: "Too many requests",
+      b: "Wait about a minute and scan again." };
+    if(status === 400 && apiType === "invalid_request_error") return { h: "The request was rejected",
+      b: "Usually the photo is too large. Try a tighter crop of just the problem." };
+    if(status === 402 || apiType === "billing_error") return { h: "No credit left",
+      b: "The Anthropic account attached to this key needs credit added before it can run scans." };
+    if(status >= 500) return { h: "Anthropic's servers had a problem",
+      b: "This is on their end, not yours. Try again in a minute." };
+    return { h: "Something went wrong", b: "Try again. If it keeps happening, check your key in Settings." };
+  }
+};
+/*__PURE_END__*/
+
+const KEY_STORE = "ps_key_v1";
+const DATA_STORE = "problemscanner_v1";
+const MAX_EDGE = 1568;      // long-edge px cap — keeps image tokens sane
+const MAX_INDEX = 60;       // past scans described to the model per call
+
+const MODELS = [
+  { id: "claude-opus-5",   label: "Opus 5",   rate: { in: 5,  out: 25 } },
+  { id: "claude-sonnet-5", label: "Sonnet 5", rate: { in: 3,  out: 15 } },
+  { id: "claude-haiku-4-5",label: "Haiku 4.5",rate: { in: 1,  out: 5  } }
+];
+
+const SCHEMA = {
+  type: "object",
+  properties: {
+    readable:      { type: "boolean", description: "false if the image is too blurry/dark/cropped to analyze, or is not a school problem at all" },
+    unreadable_reason: { type: "string", description: "If readable is false, one friendly sentence saying what to re-shoot. Empty otherwise." },
+    subject:       { type: "string", description: "Broad school subject, title case, e.g. Geometry, Latin, Biology, Algebra, Chemistry" },
+    concept:       { type: "string", description: "The specific concept, e.g. 'triangle angle sum' or 'first declension ablative case'" },
+    concept_tags:  { type: "array", items: { type: "string" }, description: "1-3 short lowercase kebab-case tags, e.g. triangle-angle-sum" },
+    problem_summary:{ type: "string", description: "One sentence: what the problem was asking." },
+    what_you_did:  { type: "string", description: "What the student's own work shows they actually did, in plain language." },
+    mistake:       { type: "string", description: "The specific mistake, explained simply with no jargon." },
+    why_it_happens:{ type: "string", description: "Why this mistake is easy to make — the misunderstanding behind it." },
+    rule:          { type: "string", description: "The general rule or principle to remember, stated so it applies to any similar problem." },
+    correct_approach:{ type: "string", description: "How to do this specific problem correctly, step by step, briefly." },
+    related_past_ids:{ type: "array", items: { type: "string" }, description: "IDs from PAST SCANS that are genuinely the same or a closely related concept. Empty if none." },
+    pattern_note:  { type: "string", description: "If related_past_ids is non-empty, one or two sentences naming the pattern across those mistakes. Empty otherwise." }
+  },
+  required: ["readable","unreadable_reason","subject","concept","concept_tags","problem_summary",
+             "what_you_did","mistake","why_it_happens","rule","correct_approach","related_past_ids","pattern_note"],
+  additionalProperties: false
+};
+
+const SYSTEM = `You help a 9th-grade student learn from problems they got wrong. They photograph the problem along with their own handwritten attempt.
+
+Your job:
+1. Read the problem and their work carefully. Figure out what they were asked and what they actually did.
+2. Name the specific mistake.
+3. Explain it so they can avoid it on any similar problem — not just this one.
+
+How to explain:
+- Assume they are a beginner at this concept. They got it wrong, so do not assume they remember any of it, even if it is something they have "covered" before.
+- No jargon. If you must use a technical term, define it in the same sentence.
+- Be direct and kind. Never condescending, never padded with praise.
+- Keep each field to a few sentences. Short and clear beats thorough and dense.
+- If their work is partly right, say what they got right before the mistake.
+
+You will be given a list of PAST SCANS — mistakes this same student made before. After you identify the concept, check whether any past scan is genuinely the same or a closely related concept. Only cite one if a real connection exists; do not stretch for a match. If you do find one, name the pattern across the mistakes.
+
+If the photo is too blurry, dark, or cropped to analyze, or is not a school problem, set readable to false and say what to re-shoot. Never guess at content you cannot actually read.`;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c =>
+  ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+/* ---------- state ---------- */
+function defaults(){
+  return { version: 1, entries: [], model: "claude-opus-5", spent: 0 };
+}
+function migrate(o){
+  const d = defaults();
+  if(!o || typeof o !== "object") return d;
+  const s = Object.assign(d, o);
+  if(!Array.isArray(s.entries)) s.entries = [];
+  s.entries = s.entries.filter(e => e && typeof e === "object").map(e => ({
+    id: e.id || uid(),
+    ts: e.ts || Date.now(),
+    date: e.date || PURE.dayKey(new Date(e.ts || Date.now())),
+    subject: e.subject || "Other",
+    concept: e.concept || "",
+    tags: PURE.cleanTags(e.tags),
+    mistake: e.mistake || "",
+    explanation: e.explanation || "",
+    detail: e.detail && typeof e.detail === "object" ? e.detail : null
+  }));
+  if(!MODELS.some(m => m.id === s.model)) s.model = "claude-opus-5";
+  s.spent = Number(s.spent) || 0;
+  s.version = 1;
+  return s;
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(DATA_STORE);
+    return raw ? migrate(JSON.parse(raw)) : defaults();
+  }catch(e){ return defaults(); }
+}
+function save(){ try{ localStorage.setItem(DATA_STORE, JSON.stringify(S)); }catch(e){} }
+
+function getKey(){ try{ return localStorage.getItem(KEY_STORE) || ""; }catch(e){ return ""; } }
+function setKey(k){ try{ k ? localStorage.setItem(KEY_STORE, k) : localStorage.removeItem(KEY_STORE); }catch(e){} }
+
+let S = load();
+let pending = null;   // { dataUrl, b64, w, h }
+let busy = false;
+let openEntry = null;
+
+/* ---------- ui helpers ---------- */
+function toast(msg){
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.textContent = msg;
+  const box = $("#toasts");
+  box.appendChild(t);
+  while(box.children.length > 3) box.removeChild(box.firstChild);
+  setTimeout(() => t.remove(), 3100);
+}
+function switchTab(name){
+  document.querySelectorAll(".tab").forEach(s => s.classList.toggle("active", s.id === "tab-" + name));
+  document.querySelectorAll("#tabbar .tb").forEach(b => b.classList.toggle("sel", b.dataset.tab === name));
+  window.scrollTo(0, 0);
+}
+
+/* ---------- image ---------- */
+function readImage(file){
+  return new Promise((resolve, reject) => {
+    if(!file || !/^image\//.test(file.type)) return reject(new Error("Not an image file."));
+    const fr = new FileReader();
+    fr.onerror = () => reject(new Error("Couldn't read that file."));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("Couldn't open that image."));
+      img.onload = () => {
+        const { w, h } = PURE.fitSize(img.naturalWidth, img.naturalHeight, MAX_EDGE);
+        const c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        const ctx = c.getContext("2d");
+        ctx.fillStyle = "#fff";           // flatten alpha; scans are documents
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        const dataUrl = c.toDataURL("image/jpeg", 0.85);
+        resolve({ dataUrl, b64: dataUrl.split(",")[1], w, h });
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+/* ---------- API ---------- */
+function buildIndex(){
+  const recent = S.entries.slice(0, MAX_INDEX);
+  if(!recent.length) return "PAST SCANS: none yet — this is the student's first scan.";
+  return "PAST SCANS (most recent first):\n" + recent.map(PURE.indexLine).join("\n");
+}
+
+async function analyze(note){
+  const key = getKey();
+  if(!key){ switchTab("settings"); toast("Add your API key first"); return; }
+  if(!pending || busy) return;
+
+  busy = true;
+  renderScan();
+
+  const model = MODELS.find(m => m.id === S.model) || MODELS[0];
+  const userText = buildIndex() +
+    (note ? `\n\nSTUDENT'S NOTE: ${note}` : "") +
+    `\n\nAnalyze the attached photo of a problem this student got wrong.`;
+
+  let res, data;
+  try{
+    res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: model.id,
+        max_tokens: 8000,
+        system: SYSTEM,
+        output_config: { format: { type: "json_schema", schema: SCHEMA } },
+        messages: [{
+          role: "user",
+          content: [
+            { type: "image", source: { type: "base64", media_type: "image/jpeg", data: pending.b64 } },
+            { type: "text", text: userText }
+          ]
+        }]
+      })
+    });
+  }catch(e){
+    busy = false;
+    renderScan({ h: "Can't reach the internet", b: "Check your connection and try again." });
+    return;
+  }
+
+  try{ data = await res.json(); }catch(e){ data = null; }
+
+  if(!res.ok){
+    busy = false;
+    renderScan(PURE.errorFor(res.status, data && data.error && data.error.type));
+    return;
+  }
+  if(data && data.stop_reason === "refusal"){
+    busy = false;
+    renderScan({ h: "Claude declined this one",
+      b: "It wouldn't analyze this image. If it's an ordinary school problem, try re-shooting it more tightly." });
+    return;
+  }
+
+  const textBlock = (data && Array.isArray(data.content))
+    ? data.content.find(b => b.type === "text") : null;
+  let out = null;
+  try{ out = JSON.parse(textBlock.text); }catch(e){
+    busy = false;
+    renderScan({ h: "Couldn't read the response", b: "Something came back malformed. Try scanning again." });
+    return;
+  }
+
+  const spend = PURE.cost(data.usage, model.rate);
+  S.spent += spend;
+  busy = false;
+
+  if(out.readable === false){
+    save();
+    renderScan(null, { unreadable: true, reason: out.unreadable_reason, usage: data.usage, spend });
+    return;
+  }
+
+  const entry = {
+    id: uid(),
+    ts: Date.now(),
+    date: PURE.dayKey(new Date()),
+    subject: (out.subject || "Other").trim() || "Other",
+    concept: out.concept || "",
+    tags: PURE.cleanTags(out.concept_tags),
+    mistake: out.mistake || "",
+    explanation: out.rule || "",
+    detail: {
+      problem: out.problem_summary || "",
+      did: out.what_you_did || "",
+      why: out.why_it_happens || "",
+      fix: out.correct_approach || "",
+      pattern: out.pattern_note || "",
+      related: Array.isArray(out.related_past_ids) ? out.related_past_ids.slice(0, 4) : []
+    }
+  };
+  S.entries.unshift(entry);
+  save();
+  pending = null;
+  renderScan(null, { entry, usage: data.usage, spend });
+  renderHistory();
+  renderCounts();
+}
+
+/* ---------- renders ---------- */
+function renderCounts(){
+  const n = S.entries.length;
+  $("#scanCount").textContent = n ? `${n} scan${n>1?"s":""}` : "";
+  $("#histCount").textContent = n ? `${n} total` : "";
+}
+
+function renderScan(err, result){
+  const stage = $("#scanStage");
+  let html = "";
+
+  if(err) html += `<div class="err"><div class="h">${esc(err.h)}</div><div class="b">${err.b}</div></div>`;
+
+  if(busy){
+    html += `<div class="card loading">
+      <div class="spin"></div>
+      <div class="st">Reading your work…</div>
+      <div class="ss">Finding the mistake and checking it against your past scans</div>
+    </div>`;
+    stage.innerHTML = html;
+    return;
+  }
+
+  if(result && result.unreadable){
+    html += `<div class="card unreadable">
+      <span class="ic">🔍</span>
+      <div class="t">Couldn't read that clearly</div>
+      <div class="s">${esc(result.reason || "Try again with more light and the whole problem in frame.")}</div>
+    </div>
+    <button class="btn primary wide" style="margin-top:14px" id="againBtn">Take another photo</button>`;
+    stage.innerHTML = html;
+    $("#againBtn").addEventListener("click", () => { pending = null; renderScan(); });
+    return;
+  }
+
+  if(result && result.entry){
+    html += renderResult(result.entry, result.usage, result.spend);
+    html += `<button class="btn primary wide" style="margin-top:16px" id="againBtn">Scan another problem</button>`;
+    stage.innerHTML = html;
+    $("#againBtn").addEventListener("click", () => { pending = null; renderScan(); });
+    return;
+  }
+
+  if(pending){
+    html += `<div class="preview">
+        <img src="${pending.dataUrl}" alt="The problem you photographed">
+        <button class="x" id="dropShot" aria-label="Remove photo">✕</button>
+      </div>
+      <div class="noteRow">
+        <input type="text" id="noteInput" maxlength="140" placeholder="Anything to add? (optional)">
+      </div>
+      <button class="btn primary wide" style="margin-top:12px" id="goBtn">Find my mistake</button>`;
+    stage.innerHTML = html;
+    $("#dropShot").addEventListener("click", () => { pending = null; renderScan(); });
+    $("#goBtn").addEventListener("click", () => analyze($("#noteInput").value.trim()));
+    $("#noteInput").addEventListener("keydown", e => {
+      if(e.key === "Enter") analyze($("#noteInput").value.trim());
+    });
+    return;
+  }
+
+  html += `<button class="dropzone" id="shootBtn" style="width:100%;display:block">
+      <span class="ic">📸</span>
+      <span class="t">Scan a problem you got wrong</span>
+      <span class="s">Include your own work, not just the question</span>
+    </button>
+    <div class="shots">
+      <button class="btn sm" id="camBtn">Take photo</button>
+      <button class="btn sm" id="libBtn">Choose from library</button>
+    </div>`;
+
+  if(!getKey()){
+    html += `<div class="err" style="margin-top:16px"><div class="h">No API key yet</div>
+      <div class="b">Add your Anthropic API key in Settings before your first scan.</div></div>`;
+  }
+
+  if(S.entries.length){
+    const last = S.entries[0];
+    html += `<div class="lbl">Last scan</div>
+      <div class="card">
+        <div class="chips">
+          <span class="chip sub">${esc(last.subject)}</span>
+          ${last.tags.map(t => `<span class="chip">${esc(t)}</span>`).join("")}
+        </div>
+        <div class="sec" style="margin-bottom:0">
+          <div class="h" style="color:var(--muted)">The mistake</div>
+          <div class="b" style="font-size:14.5px">${esc(last.mistake)}</div>
+        </div>
+      </div>`;
+  }
+
+  stage.innerHTML = html;
+  $("#shootBtn").addEventListener("click", () => $("#fileCamera").click());
+  $("#camBtn").addEventListener("click", () => $("#fileCamera").click());
+  $("#libBtn").addEventListener("click", () => $("#filePick").click());
+}
+
+function renderResult(e, usage, spend){
+  const d = e.detail || {};
+  let html = `<div class="card">
+    <div class="chips">
+      <span class="chip sub">${esc(e.subject)}</span>
+      ${e.tags.map(t => `<span class="chip">${esc(t)}</span>`).join("")}
+    </div>`;
+
+  if(d.pattern && (d.related || []).length){
+    const refs = d.related.map(id => S.entries.find(x => x.id === id)).filter(Boolean);
+    html += `<div class="callout">
+      <div class="h">⟲ You've been here before</div>
+      <div class="b">${esc(d.pattern)}</div>
+      ${refs.length ? `<div class="refs">${refs.map(r =>
+        `<div class="ref"><b>${esc(r.date)}</b> · ${esc(r.subject)} — ${esc(r.mistake)}</div>`).join("")}</div>` : ""}
+    </div>`;
+  }
+
+  if(d.problem) html += `<div class="sec did"><div class="h">The problem</div><div class="b">${esc(d.problem)}</div></div>`;
+  if(d.did)     html += `<div class="sec did"><div class="h">What you did</div><div class="b">${esc(d.did)}</div></div>`;
+  html += `<div class="sec mistake"><div class="h">✕ The mistake</div><div class="b">${esc(e.mistake)}</div></div>`;
+  if(d.why)     html += `<div class="sec why"><div class="h">Why it's easy to miss</div><div class="b">${esc(d.why)}</div></div>`;
+  html += `<div class="sec rule"><div class="h">✓ The rule to remember</div><div class="b">${esc(e.explanation)}</div></div>`;
+  if(d.fix)     html += `<div class="sec fix"><div class="h">Doing it right</div><div class="b">${esc(d.fix)}</div></div>`;
+
+  html += `</div>`;
+  if(usage){
+    html += `<div class="usage">${(usage.input_tokens||0).toLocaleString()} in · ${(usage.output_tokens||0).toLocaleString()} out · about ${PURE.money(spend)}</div>`;
+  }
+  return html;
+}
+
+function renderHistory(){
+  renderCounts();
+  const reps = PURE.repeats(S.entries);
+  $("#repeatsWrap").innerHTML = reps.length ? `<div class="lbl">Keeps tripping you up</div>
+    <div class="repeats">${reps.slice(0, 5).map(r => `
+      <div class="rep-row">
+        <div class="n">${r.count}</div>
+        <div class="grow">
+          <div class="rc">${esc(r.tag)}</div>
+          <div class="rs">${esc(r.subject)} · last on ${esc(r.last)}</div>
+        </div>
+      </div>`).join("")}</div>` : "";
+
+  if(!S.entries.length){
+    $("#histList").innerHTML = `<div class="empty">No scans yet.<br>Photograph a problem you got wrong and it'll show up here.</div>`;
+    return;
+  }
+
+  const repTags = new Set(reps.map(r => r.tag));
+  const groups = PURE.groupBySubject(S.entries);
+  $("#histList").innerHTML = (reps.length ? `<div class="lbl">All scans</div>` : "") + groups.map(g => `
+    <div class="hgroup">
+      <div class="gh">
+        <div class="gn">${esc(g.subject)}</div>
+        <div class="gc">${g.items.length}</div>
+      </div>
+      ${g.items.map(e => {
+        const open = openEntry === e.id, d = e.detail || {};
+        return `<div class="entry">
+          <button class="top" style="width:100%;background:none;border:none;text-align:left" data-open="${e.id}">
+            <div class="grow">
+              <div class="ec">${esc(e.concept || e.subject)}</div>
+              <div class="em">${esc(e.mistake)}</div>
+              <div class="rowtag">${e.tags.map(t =>
+                `<span class="tag${repTags.has(t) ? " rep" : ""}">${esc(t)}</span>`).join("")}</div>
+            </div>
+            <div class="ed">${esc(e.date.slice(5))}</div>
+          </button>
+          ${open ? `<div class="body">
+            ${d.did ? `<div class="sec did"><div class="h">What you did</div><div class="b" style="font-size:14px">${esc(d.did)}</div></div>` : ""}
+            <div class="sec rule" style="margin-bottom:0"><div class="h">✓ The rule</div><div class="b" style="font-size:14px">${esc(e.explanation)}</div></div>
+            ${d.fix ? `<div class="sec fix" style="margin-top:12px;margin-bottom:0"><div class="h">Doing it right</div><div class="b" style="font-size:14px">${esc(d.fix)}</div></div>` : ""}
+            <button class="btn sm danger" style="margin-top:14px" data-del="${e.id}">Delete this scan</button>
+          </div>` : ""}
+        </div>`;
+      }).join("")}
+    </div>`).join("");
+}
+
+function renderSettings(){
+  const has = !!getKey();
+  $("#keyState").innerHTML = has
+    ? `<span class="dot on"></span><span>Key saved on this device</span>`
+    : `<span class="dot off"></span><span>No key yet</span>`;
+  $("#keyInput").value = "";
+  $("#keyInput").placeholder = has ? "sk-ant-…  (saved — type to replace)" : "sk-ant-api03-…";
+  $("#modelPick").innerHTML = MODELS.map(m =>
+    `<button class="mchip${S.model === m.id ? " sel" : ""}" data-model="${m.id}">${esc(m.label)}</button>`).join("");
+}
+
+function renderAll(){ renderScan(); renderHistory(); renderSettings(); renderCounts(); }
+
+/* ---------- export / import ---------- */
+function exportJson(){
+  const blob = new Blob([JSON.stringify(S, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "problem-scanner-" + PURE.dayKey(new Date()) + ".json";
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  toast("Backup exported");
+}
+function importJson(file){
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const obj = JSON.parse(r.result);
+      if(!obj || typeof obj !== "object" || !Array.isArray(obj.entries)) throw new Error("bad");
+      S = migrate(obj); save(); renderAll();
+      const n = S.entries.length;
+      toast(`Imported ${n} scan${n === 1 ? "" : "s"}`);
+    }catch(e){ toast("That doesn't look like a Problem Scanner backup"); }
+  };
+  r.readAsText(file);
+}
+
+/* ---------- wiring ---------- */
+let armedWipe = false, wipeTimer = null;
+
+function init(){
+  renderAll();
+
+  $("#tabbar").addEventListener("click", e => {
+    const b = e.target.closest(".tb");
+    if(b) switchTab(b.dataset.tab);
+  });
+
+  const onPick = async ev => {
+    const f = ev.target.files && ev.target.files[0];
+    ev.target.value = "";
+    if(!f) return;
+    try{
+      pending = await readImage(f);
+      renderScan();
+    }catch(e){ toast(e.message || "Couldn't use that image"); }
+  };
+  $("#fileCamera").addEventListener("change", onPick);
+  $("#filePick").addEventListener("change", onPick);
+
+  $("#histList").addEventListener("click", e => {
+    const del = e.target.closest("[data-del]");
+    if(del){
+      S.entries = S.entries.filter(x => x.id !== del.dataset.del);
+      openEntry = null; save(); renderHistory(); renderScan();
+      toast("Scan deleted");
+      return;
+    }
+    const op = e.target.closest("[data-open]");
+    if(op){
+      openEntry = openEntry === op.dataset.open ? null : op.dataset.open;
+      renderHistory();
+    }
+  });
+
+  $("#saveKey").addEventListener("click", () => {
+    const v = $("#keyInput").value.trim();
+    if(!v){ toast("Paste your key first"); return; }
+    if(!/^sk-ant-/.test(v)){ toast("Anthropic keys start with sk-ant-"); return; }
+    setKey(v); renderSettings(); renderScan();
+    toast("Key saved — you're ready to scan");
+  });
+  $("#clearKey").addEventListener("click", () => {
+    setKey(""); renderSettings(); renderScan();
+    toast("Key removed from this device");
+  });
+
+  $("#modelPick").addEventListener("click", e => {
+    const b = e.target.closest("[data-model]");
+    if(!b) return;
+    S.model = b.dataset.model; save(); renderSettings();
+    toast("Using " + (MODELS.find(m => m.id === S.model) || {}).label);
+  });
+
+  $("#exportBtn").addEventListener("click", exportJson);
+  $("#importBtn").addEventListener("click", () => $("#importFile").click());
+  $("#importFile").addEventListener("change", e => {
+    if(e.target.files[0]) importJson(e.target.files[0]);
+    e.target.value = "";
+  });
+
+  // Two-tap confirm: sandboxed pages block confirm() dialogs entirely.
+  $("#wipeBtn").addEventListener("click", () => {
+    const btn = $("#wipeBtn");
+    if(!armedWipe){
+      armedWipe = true;
+      btn.textContent = "Tap again to delete everything";
+      btn.style.background = "var(--rose)";
+      btn.style.color = "#2a0a09";
+      clearTimeout(wipeTimer);
+      wipeTimer = setTimeout(() => {
+        armedWipe = false;
+        btn.textContent = "Delete all scans";
+        btn.style.background = ""; btn.style.color = "";
+      }, 2800);
+      return;
+    }
+    clearTimeout(wipeTimer);
+    armedWipe = false;
+    btn.textContent = "Delete all scans";
+    btn.style.background = ""; btn.style.color = "";
+    S.entries = []; openEntry = null; save(); renderAll();
+    toast("All scans deleted");
+  });
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
