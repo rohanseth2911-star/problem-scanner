@@ -444,7 +444,9 @@ How to explain:
 
 You will be given a list of PAST SCANS — mistakes this same student made before. After you identify the concept, check whether any past scan is genuinely the same or a closely related concept. Only cite one if a real connection exists; do not stretch for a match. If you do find one, name the pattern across the mistakes.
 
-If the photo is too blurry, dark, or cropped to analyze, or is not a school problem, set readable to false and say what to re-shoot. Never guess at content you cannot actually read.`;
+These are ordinary phone photos of notebook pages and worksheets: some glare, tilt, messy handwriting, and imperfect focus are completely normal and expected — work with that, the same way a teacher reading a student's notebook would. Read every part of the image closely, including the margins and corners, before deciding anything is unreadable.
+
+Only set readable to false if you genuinely cannot make out enough of the problem or the student's work to say anything meaningful — for example the photo is mostly blank, extremely dark, is missing the work entirely, or is not a school problem at all. Being able to read most of it, even if a word or number here and there is ambiguous, counts as readable: do your best and note the uncertainty in your answer instead of refusing. If you do set readable to false, unreadable_reason should say precisely what's missing (e.g. "I can only see the printed question, not your handwritten work — include that in the shot" or "the photo is too dark to make out the numbers"), not a generic "unclear" — the student's fix depends on knowing exactly what to change. Never guess at content you truly cannot make out.`;
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c =>
@@ -525,7 +527,7 @@ function readImage(file){
         ctx.fillStyle = "#fff";           // flatten alpha; scans are documents
         ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, 0, 0, w, h);
-        const dataUrl = c.toDataURL("image/jpeg", 0.85);
+        const dataUrl = c.toDataURL("image/jpeg", 0.94);
         resolve({ dataUrl, b64: dataUrl.split(",")[1], w, h });
       };
       img.src = fr.result;
@@ -672,6 +674,17 @@ function renderScan(err, result){
       <div class="t">Couldn't read that clearly</div>
       <div class="s">${esc(result.reason || "Try again with more light and the whole problem in frame.")}</div>
     </div>
+    <div class="lbl">For a better shot</div>
+    <div class="card">
+      <div class="sec did" style="margin-bottom:0">
+        <div class="b" style="font-size:14px;line-height:1.7">
+          Crop or move in so the problem and your work fill most of the frame — a photo of the
+          whole page makes the handwriting too small to read once it's resized.<br>
+          Flat light works best; angle the page away from any glare or shadow.<br>
+          Hold the phone steady and let it focus before you shoot.
+        </div>
+      </div>
+    </div>
     <button class="btn primary wide" style="margin-top:14px" id="againBtn">Take another photo</button>`;
     stage.innerHTML = html;
     $("#againBtn").addEventListener("click", () => { pending = null; renderScan(); });
@@ -707,7 +720,7 @@ function renderScan(err, result){
   html += `<button class="dropzone" id="shootBtn" style="width:100%;display:block">
       <span class="ic"></span>
       <span class="t">Scan a problem you got wrong</span>
-      <span class="s">Include your own work, not just the question</span>
+      <span class="s">Include your own work, cropped in close</span>
     </button>
     <div class="shots">
       <button class="btn sm" id="camBtn">Take photo</button>
