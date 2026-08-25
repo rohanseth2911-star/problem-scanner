@@ -8,10 +8,16 @@ The whole app runs with **zero API keys** against a fixture provider that
 includes a genuinely advancing live game — so the scoring engines, the diff
 engine and the alert pipeline are all demonstrable before you spend a cent.
 
+**Requires Node 22.5 or newer** — persistence uses the built-in `node:sqlite`,
+which does not exist on older runtimes. Check with `node -v`.
+
 ```bash
 npm install
-npm run dev          # http://localhost:5173
+npm run dev          # open http://localhost:5173
 ```
+
+That is the whole setup. No database to provision, no API key, no signup. The
+live view will already have a game in progress.
 
 ## What it actually does
 
