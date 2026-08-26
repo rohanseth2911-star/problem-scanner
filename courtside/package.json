@@ -13,7 +13,8 @@
     "build": "vite build && tsc -p tsconfig.server.json",
     "start": "NODE_ENV=production tsx server/index.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.server.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.server.json",
+    "probe": "tsx --env-file-if-exists=.env scripts/probe-provider.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",

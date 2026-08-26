@@ -104,6 +104,17 @@ restart or a duplicate upstream frame can never double-buzz your phone.
 
 ## Switching to real data
 
+Check the key against every endpoint the app uses before wiring it in:
+
+```bash
+npm run probe
+```
+
+One call per endpoint. It prints the shape that came back beside the fields the
+adapter expects, and names any that are missing — never the key, never a full
+payload.
+
+
 ```bash
 SPORTS_PROVIDER=api-sports
 SPORTS_API_KEY=...        # one API-SPORTS account covers all four leagues
