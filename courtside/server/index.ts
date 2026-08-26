@@ -25,7 +25,9 @@ if (fs.existsSync(clientDist)) {
 
 const port = Number(process.env.PORT ?? 3001);
 
-app.listen(port, () => {
+// Bind 0.0.0.0 explicitly: container platforms route to the published port
+// from outside the container, and a loopback-only bind is unreachable there.
+app.listen(port, '0.0.0.0', () => {
   const provider = getProvider();
   const prefs = getPreferences();
   console.log(`Courtside API on :${port}`);

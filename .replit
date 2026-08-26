@@ -1,0 +1,33 @@
+# Replit configuration for Courtside.
+#
+# The app lives in courtside/ because this repository predates it.
+#
+# deploymentTarget is "vm" deliberately. On a scale-to-zero target the polling
+# worker sleeps whenever nobody has the page open, so no alert ever fires
+# unless you are already looking at the app — which removes the only reason
+# this app exists. A VM stays up.
+
+modules = ["nodejs-22"]
+run = "cd courtside && npm install && npm run dev"
+
+[nix]
+channel = "stable-24_05"
+
+[env]
+ENABLE_POLLER = "true"
+SPORTS_PROVIDER = "mock"
+
+[deployment]
+deploymentTarget = "vm"
+build = ["sh", "-c", "cd courtside && npm install && npm run build"]
+run = ["sh", "-c", "cd courtside && npm start"]
+
+# Vite's dev server, for the Repl workspace preview.
+[[ports]]
+localPort = 5173
+externalPort = 80
+
+# The API and, in production, the built client.
+[[ports]]
+localPort = 3001
+externalPort = 3001

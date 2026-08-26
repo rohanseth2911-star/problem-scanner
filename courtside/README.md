@@ -132,6 +132,19 @@ Alerts default to console logging. Set `TELEGRAM_BOT_TOKEN` and
 `TELEGRAM_CHAT_ID` to reach a phone — no VAPID keys, no service worker, no PWA
 install required. `WebPushChannel` is stubbed behind the same interface.
 
+## Deploying to Replit
+
+The repository carries a `.replit` at its root, so **Import from GitHub** picks
+up the build and run commands with no manual setup. Choose the branch
+`claude/sports-preference-tracker-ul1gn8`.
+
+Deployment target is set to `vm` on purpose — see the note below. Put real keys
+in **Secrets**, never in `.replit`.
+
+> Written against Replit's documented `.replit` format but not verified against
+> a live Repl. If the import complains, the two settings that matter are: run
+> `cd courtside && npm start`, and deploy as a Reserved VM.
+
 ## Deployment note
 
 The polling worker must run somewhere **always-on**. On a scale-to-zero host it

@@ -7,8 +7,12 @@ export default defineConfig({
   build: { outDir: '../dist/client', emptyOutDir: true },
   server: {
     port: 5173,
+    // Bind all interfaces so container hosts (Replit, Codespaces, Docker) can
+    // reach the dev server from outside.
+    host: true,
+    allowedHosts: true,
     proxy: {
-      '/api': { target: 'http://localhost:3001', changeOrigin: true },
+      '/api': { target: 'http://127.0.0.1:3001', changeOrigin: true },
     },
   },
 });
