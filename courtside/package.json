@@ -11,10 +11,11 @@
     "dev:server": "tsx watch server/index.ts",
     "dev:client": "vite",
     "build": "vite build && tsc -p tsconfig.server.json",
-    "start": "NODE_ENV=production tsx server/index.ts",
+    "start": "NODE_ENV=production ENABLE_POLLER=true tsx server/index.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.server.json",
-    "probe": "tsx --env-file-if-exists=.env scripts/probe-provider.ts"
+    "probe": "tsx --env-file-if-exists=.env scripts/probe-provider.ts",
+    "prestart": "node scripts/ensure-build.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",
