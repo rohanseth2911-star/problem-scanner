@@ -84,7 +84,10 @@ export function buildTeams(): Team[] {
 }
 
 function recordFor(seed: TeamSeed): { w: number; l: number; d: number } {
-  const played = seed.leagueId === 'nfl' ? 11 : seed.leagueId === 'epl' ? 14 : 28;
+  // Enough games played that a rating gap actually separates two teams. At 14
+  // games, rounding gave Man City and Liverpool identical records, which reads
+  // as a bug rather than as a title race.
+  const played = seed.leagueId === 'nfl' ? 14 : seed.leagueId === 'epl' ? 24 : 34;
   const winRate = 0.15 + (seed.rating / 100) * 0.72;
   const w = Math.round(played * winRate);
   const d = seed.leagueId === 'epl' ? Math.max(0, Math.round(played * 0.18)) : 0;

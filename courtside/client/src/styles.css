@@ -127,7 +127,8 @@ main {
 }
 
 .tabbar a.active { color: var(--text); background: var(--surface); }
-.tabbar svg { width: 20px; height: 20px; }
+.tabbar svg { width: 22px; height: 22px; }
+.tabbar a.active svg { stroke-width: 2.1; }
 
 /* --- Cards --------------------------------------------------------------- */
 
@@ -160,16 +161,33 @@ main {
 
 .stack { display: flex; flex-direction: column; gap: 10px; }
 
-/* --- Hero pick ----------------------------------------------------------- */
+/* --- Hero pick -----------------------------------------------------------
+   The two teams' actual colours carry the card. A matchup should be
+   recognisable before you read a word of it.
+------------------------------------------------------------------------- */
 
 .hero {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(160deg, var(--surface-2), var(--surface) 65%);
   border: 1px solid var(--border-strong);
-  border-radius: 18px;
-  padding: 18px;
+  border-radius: 20px;
+  padding: 20px 18px 18px;
   box-shadow: var(--shadow);
+  background:
+    radial-gradient(120% 92% at 6% 0%, color-mix(in srgb, var(--away-color, #444) 34%, transparent), transparent 62%),
+    radial-gradient(120% 92% at 94% 0%, color-mix(in srgb, var(--home-color, #444) 34%, transparent), transparent 62%),
+    linear-gradient(168deg, var(--surface-2), var(--surface) 70%);
+  isolation: isolate;
+}
+
+/* Keeps text legible when two saturated club colours meet in the middle. */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, transparent 8%, color-mix(in srgb, var(--bg) 62%, transparent) 78%);
+  pointer-events: none;
 }
 
 .hero::before {
@@ -177,7 +195,63 @@ main {
   position: absolute;
   inset: 0 0 auto 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--accent, var(--must-watch)), transparent 85%);
+  background: linear-gradient(90deg, var(--away-color, #666), var(--home-color, #666));
+}
+
+/* --- Matchup crest row ---------------------------------------------------- */
+
+.matchup {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 4px;
+}
+
+.matchup .crest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.crest-badge {
+  width: 58px;
+  height: 58px;
+  border-radius: 17px;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  box-shadow: 0 6px 18px -8px rgb(0 0 0 / 0.9), inset 0 1px 0 rgb(255 255 255 / 0.18);
+}
+
+.crest-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 108px;
+}
+
+.crest-record { font-size: 11px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+
+.matchup .versus {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.matchup .bigscore {
+  font-size: 38px;
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 .hero-eyebrow {
@@ -197,6 +271,19 @@ main {
   font-weight: 680;
   letter-spacing: -0.025em;
   line-height: 1.12;
+}
+
+/* --- Score change flash --------------------------------------------------- */
+
+@keyframes score-flash {
+  0%   { color: var(--live); transform: translateY(-2px); }
+  100% { color: inherit; transform: none; }
+}
+
+.flash { animation: score-flash 1.1s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flash { animation: none; }
 }
 
 .hero-meta {

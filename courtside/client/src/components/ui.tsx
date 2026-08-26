@@ -76,7 +76,7 @@ export function TeamChip({ abbrev, colors }: { abbrev: string; colors: [string, 
 }
 
 /** Picks black or white text for a background, by relative luminance. */
-function readableOn(hex: string): string {
+export function readableOn(hex: string): string {
   const value = hex.replace('#', '');
   const full = value.length === 3 ? value.split('').map((c) => c + c).join('') : value;
   const r = parseInt(full.slice(0, 2), 16) / 255;
