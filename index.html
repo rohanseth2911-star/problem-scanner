@@ -13,8 +13,15 @@
 <link rel="manifest" href="manifest.json">
 <title>Problem Scanner</title>
 <style>
-/* Monochrome: one warm-neutral hue, distinguished only by value.
-   Emphasis is carried by inversion (light-on-dark), never by hue. */
+/* Warm-graphite base: one warm-neutral hue, distinguished by value, with
+   emphasis carried by inversion (light-on-dark). A single warm-gold accent
+   is layered on top — used sparingly, only for two things: active
+   affordances (the main action, the current tab, a chosen option) and the
+   handful of moments that matter most (a repeated mistake, the rule to
+   remember). Everything else stays monochrome so the gold keeps its weight.
+   Gold is the warm base's own hue pushed to full chroma, so it reads as
+   part of the palette, not a sticker on it. Every gold pairing below holds
+   ≥4.5:1 contrast. */
 :root{
   --bg:#0d0d0c;
   --s1:#161615;      /* card            */
@@ -27,6 +34,12 @@
   --ink3:#8f8a81;    /* muted — kept ≥4.5:1 on every surface it sits on */
   --inv:#efece4;     /* inverted ground */
   --inv-ink:#141310; /* inverted text   */
+  --acc:#e7b65c;     /* gold — text, borders, icons on a dark surface */
+  --acc-solid:#e9b64f;/* gold — filled backgrounds                    */
+  --acc-ink:#1a1407; /* text on a gold fill                           */
+  --acc-deep:#7a5410;/* gold dark enough to read on the cream ground  */
+  --acc-soft:rgba(231,182,92,.13); /* gold wash for a tinted surface  */
+  --acc-line:rgba(231,182,92,.42); /* gold hairline                   */
   --serif:ui-serif,Georgia,"Iowan Old Style","Times New Roman",serif;
   --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
 }
@@ -42,7 +55,7 @@ button{cursor:pointer;user-select:none;touch-action:manipulation}
 .head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px;
   padding-bottom:14px;border-bottom:1px solid var(--line)}
 .head h1{font-size:20px;font-weight:600;letter-spacing:.01em;font-family:var(--serif)}
-.head h1 em{font-style:italic;color:var(--ink2)}
+.head h1 em{font-style:italic;color:var(--acc)}
 .head .cnt{font-size:11px;color:var(--ink3);font-weight:600;font-family:var(--mono)}
 
 .lbl{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);
@@ -52,8 +65,8 @@ button{cursor:pointer;user-select:none;touch-action:manipulation}
 .btn{background:var(--s2);border:1px solid var(--line2);border-radius:11px;padding:11px 18px;
   font-weight:600;font-size:14px;transition:transform .12s ease,background .15s}
 .btn:active{transform:scale(.96);background:var(--s3)}
-.btn.primary{background:var(--inv);border-color:var(--inv);color:var(--inv-ink);font-weight:700}
-.btn.primary:active{background:#dad7cf}
+.btn.primary{background:var(--acc-solid);border-color:var(--acc-solid);color:var(--acc-ink);font-weight:700}
+.btn.primary:active{background:#d8a63f}
 .btn.wide{width:100%;padding:14px}
 .btn.sm{padding:8px 14px;font-size:13px;border-radius:10px}
 .btn.danger{color:var(--ink2);border-style:dashed}
@@ -65,7 +78,7 @@ button{cursor:pointer;user-select:none;touch-action:manipulation}
 .dropzone:active{border-color:var(--ink2);background:var(--s2)}
 .dropzone .ic{display:block;width:34px;height:34px;margin:0 auto 14px;
   border:1.5px solid var(--ink2);border-radius:7px;position:relative}
-.dropzone .ic::after{content:"";position:absolute;inset:8px;border:1.5px solid var(--ink3);border-radius:50%}
+.dropzone .ic::after{content:"";position:absolute;inset:8px;border:1.5px solid var(--acc);border-radius:50%}
 .dropzone .t{display:block;font-size:16px;font-weight:600;margin-bottom:6px;font-family:var(--serif)}
 .dropzone .s{display:block;font-size:13px;color:var(--ink3);font-weight:500}
 .shots{display:flex;gap:10px;margin-top:12px}
@@ -84,7 +97,7 @@ button{cursor:pointer;user-select:none;touch-action:manipulation}
 
 /* loading */
 .loading{text-align:center;padding:38px 20px}
-.spin{width:34px;height:34px;border:2px solid rgba(255,255,255,.12);border-top-color:var(--ink);
+.spin{width:34px;height:34px;border:2px solid rgba(255,255,255,.12);border-top-color:var(--acc);
   border-radius:50%;margin:0 auto 18px;animation:sp .9s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .loading .st{font-size:16px;font-weight:600;font-family:var(--serif)}
@@ -109,12 +122,12 @@ button{cursor:pointer;user-select:none;touch-action:manipulation}
 
 /* The rule to remember: the one inverted block on the page. */
 .sec.rule{background:var(--inv);color:var(--inv-ink);border-radius:12px;padding:16px 17px}
-.sec.rule .h{color:rgba(20,19,16,.55)}
+.sec.rule .h{color:var(--acc-deep)}
 .sec.rule .b{color:var(--inv-ink);font-weight:500;font-size:16.5px}
 
-.callout{border:1px solid var(--line2);border-radius:12px;padding:15px 16px;margin-bottom:18px;
-  background:var(--s2);position:relative}
-.callout .h{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink);
+.callout{border:1px solid var(--acc-line);border-left:2px solid var(--acc);border-radius:12px;
+  padding:15px 16px 15px 17px;margin-bottom:18px;background:var(--acc-soft);position:relative}
+.callout .h{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--acc);
   font-weight:700;margin-bottom:8px}
 .callout .b{font-size:14.5px;line-height:1.6;font-family:var(--serif);color:var(--ink)}
 .callout .refs{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line2);
@@ -146,12 +159,13 @@ button{cursor:pointer;user-select:none;touch-action:manipulation}
 .entry .rowtag{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
 .tag{background:transparent;border:1px solid var(--line);border-radius:5px;
   padding:3px 8px;font-size:10.5px;color:var(--ink3);font-weight:600;font-family:var(--mono)}
-/* A repeated concept inverts — the same emphasis language as the rule card. */
-.tag.rep{background:var(--inv);border-color:var(--inv);color:var(--inv-ink);font-weight:700}
+/* A repeated concept is flagged in gold — the one accent that means "this
+   keeps coming back," shared with the streak badges in the History header. */
+.tag.rep{background:var(--acc-solid);border-color:var(--acc-solid);color:var(--acc-ink);font-weight:700}
 .repeats{display:flex;flex-direction:column;gap:8px}
 .rep-row{display:flex;align-items:center;gap:13px;background:var(--s1);
   border:1px solid var(--line2);border-radius:12px;padding:13px 15px}
-.rep-row .n{width:28px;height:28px;border-radius:50%;background:var(--inv);color:var(--inv-ink);
+.rep-row .n{width:28px;height:28px;border-radius:50%;background:var(--acc-solid);color:var(--acc-ink);
   display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none;
   font-family:var(--mono)}
 .rep-row .grow{flex:1;min-width:0}
@@ -172,11 +186,11 @@ button{cursor:pointer;user-select:none;touch-action:manipulation}
 .models{display:flex;gap:8px;flex-wrap:wrap}
 .mchip{background:transparent;border:1px solid var(--line2);border-radius:99px;padding:8px 15px;
   font-size:13px;font-weight:600;color:var(--ink3)}
-.mchip.sel{background:var(--inv);border-color:var(--inv);color:var(--inv-ink);font-weight:700}
+.mchip.sel{background:var(--acc-solid);border-color:var(--acc-solid);color:var(--acc-ink);font-weight:700}
 .keystate{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;margin-bottom:14px}
 /* Filled ring = key present, hollow = absent. Readable without hue. */
 .dot{width:9px;height:9px;border-radius:50%;flex:none;border:1.5px solid var(--ink2)}
-.dot.on{background:var(--ink);border-color:var(--ink)}
+.dot.on{background:var(--acc-solid);border-color:var(--acc-solid)}
 .dot.off{background:transparent}
 .iorow{display:flex;gap:10px}
 .iorow .btn{flex:1}
@@ -199,8 +213,9 @@ button{cursor:pointer;user-select:none;touch-action:manipulation}
   color:var(--ink3);font-size:10px;font-weight:600;letter-spacing:.05em;
   transition:transform .12s,color .2s;padding:4px 0}
 .tb:active{transform:scale(.92)}
-/* Icons are drawn from borders so they stay in the monochrome system —
-   emoji would reintroduce colour the palette deliberately removes. */
+/* Icons are drawn from borders and inherit currentColor — muted when idle,
+   gold on the active tab — so they track the palette instead of a fixed
+   multicolour emoji that would fight it. */
 .tb .ti{width:17px;height:17px;position:relative;opacity:.5;transition:opacity .2s}
 .tb[data-tab="scan"] .ti{border:1.5px solid currentColor;border-radius:4px}
 .tb[data-tab="scan"] .ti::after{content:"";position:absolute;inset:3.5px;
@@ -211,7 +226,7 @@ button{cursor:pointer;user-select:none;touch-action:manipulation}
 .tb[data-tab="settings"] .ti{border:1.5px solid currentColor;border-radius:50%}
 .tb[data-tab="settings"] .ti::after{content:"";position:absolute;inset:4.5px;
   background:currentColor;border-radius:50%}
-.tb.sel{color:var(--ink)}
+.tb.sel{color:var(--acc)}
 .tb.sel .ti{opacity:1}
 
 .tab{display:none}
