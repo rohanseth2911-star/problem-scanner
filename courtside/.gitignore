@@ -1,7 +1,5 @@
-.DS_Store
 node_modules
 dist
 *.db
-*.db-wal
-*.db-shm
+*.db-journal
 .env
