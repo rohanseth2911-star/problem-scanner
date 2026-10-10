@@ -1,0 +1,31 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Latin Drill sample</title><style>body{font:16px/1.5 system-ui,sans-serif;max-width:900px;margin:0 auto;padding:16px;background:#f3f2ee;color:#141310}
+@media (prefers-color-scheme:dark){body{background:#0d0d0c;color:#f2f1ed}}
+.r{border-bottom:1px solid rgba(128,128,128,.3);padding:8px 0}.k{font:12px ui-monospace,monospace;opacity:.6}
+.PASS b{opacity:.6}.FAIL{outline:3px solid currentColor;padding:6px}.DATA{border-left:6px double currentColor;padding-left:8px}
+b.ok{text-decoration:underline}</style></head><body>
+<h1>200 random questions</h1><p>Eyeball these for mistakes. The correct answer is underlined. Reload for a new batch. If a form is wrong, fix the table in data/ (see data/README.md).</p>
+<div id="out"></div>
+<script src="../data/settings.js"></script>
+<script src="../data/nouns.js"></script>
+<script src="../data/adjectives.js"></script>
+<script src="../data/verbs.js"></script>
+<script src="../data/other.js"></script>
+<script src="../data/vocab.js"></script>
+<script src="../data/passage.js"></script>
+<script src="../data/translation.js"></script>
+<script src="../data/general.js"></script>
+<script src="../js/latin.js"></script>
+<script>
+const all = Latin.items(), out = [];
+for (let i = 0; i < 200; i++) {
+  const it = Latin.pick(all), q = Latin.question(it);
+  let ans = '';
+  if (q.kind === 'mc') ans = q.choices.map((c, j) => j === q.correct ? '<b class="ok">' + Latin.esc(c) + '</b>' : Latin.esc(c)).join(' &middot; ');
+  if (q.kind === 'type') ans = 'type: <b class="ok">' + Latin.esc(q.answers.join(' / ')) + '</b>';
+  if (q.kind === 'tap') ans = 'tap: <b class="ok">' + Latin.esc(q.display) + '</b> in "' + Latin.esc(q.tokens.join(' ')) + '"';
+  out.push('<div class="r"><div class="k">' + (i + 1) + '. ' + it.key + (it.trap ? ' (trap)' : '') + '</div>' +
+    (q.context ? '<div>' + q.context + '</div>' : '') + '<div>' + q.prompt + (q.sub ? ' <i>' + Latin.esc(q.sub) + '</i>' : '') + '</div><div>' + ans + '</div><div class="k">' + Latin.esc(q.reason) + '</div></div>');
+}
+document.getElementById('out').innerHTML = out.join('');
+</script></body></html>

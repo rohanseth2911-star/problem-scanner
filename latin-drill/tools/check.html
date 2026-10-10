@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Latin Drill checks</title><style>body{font:16px/1.5 system-ui,sans-serif;max-width:900px;margin:0 auto;padding:16px;background:#f3f2ee;color:#141310}
+@media (prefers-color-scheme:dark){body{background:#0d0d0c;color:#f2f1ed}}
+.r{border-bottom:1px solid rgba(128,128,128,.3);padding:8px 0}.k{font:12px ui-monospace,monospace;opacity:.6}
+.PASS b{opacity:.6}.FAIL{outline:3px solid currentColor;padding:6px}.DATA{border-left:6px double currentColor;padding-left:8px}
+b.ok{text-decoration:underline}</style></head><body>
+<h1>Self-checks</h1><p>PASS = fine. DATA = your tables disagree with each other or the passage (probably a typo in your notes, see data/SUSPECTED_ERRORS.md). FAIL = a bug in the app.</p>
+<div id="out"></div>
+<script src="../data/settings.js"></script>
+<script src="../data/nouns.js"></script>
+<script src="../data/adjectives.js"></script>
+<script src="../data/verbs.js"></script>
+<script src="../data/other.js"></script>
+<script src="../data/vocab.js"></script>
+<script src="../data/passage.js"></script>
+<script src="../data/translation.js"></script>
+<script src="../data/general.js"></script>
+<script src="../js/latin.js"></script>
+<script src="../js/checks.js"></script>
+<script>
+const res = runChecks();
+const n = s => res.filter(r => r.status === s).length;
+document.getElementById('out').innerHTML = '<h2>' + n('PASS') + ' PASS, ' + n('DATA') + ' DATA, ' + n('FAIL') + ' FAIL</h2>' +
+  res.map(r => '<div class="r ' + r.status + '"><b>' + r.status + '</b> ' + Latin.esc(r.name) + (r.detail ? '<div class="k">' + Latin.esc(r.detail) + '</div>' : '') + '</div>').join('') +
+  '<p>The em dash check only runs from the command line: node tools/check.js</p>';
+</script></body></html>
