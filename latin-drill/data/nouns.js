@@ -48,7 +48,7 @@ window.LATIN_NOUNS = {
     {"lemma":"concilium","gen":"conciliī","gender":"n","pattern":"decl2n","stem":"concili","en":"meeting, council","source":"claude"},
     {"lemma":"nōmen","gen":"nōminis","gender":"n","pattern":"decl3n","stem":"nōmin","en":"name","source":"claude"},
 
-    {"lemma":"Syrringa","gen":"Syrringae","gender":"f","pattern":"decl1","stem":"Syrring","en":"Syrinx","proper":true,"source":"claude"},
+    {"lemma":"Syringa","gen":"Syringae","gender":"f","pattern":"decl1","stem":"Syring","en":"Syrinx","proper":true,"source":"claude"},
     {"lemma":"Diāna","gen":"Diānae","gender":"f","pattern":"decl1","stem":"Diān","en":"Diana","proper":true,"source":"claude"},
     {"lemma":"Arcadia","gen":"Arcadiae","gender":"f","pattern":"decl1","stem":"Arcadi","en":"Arcadia","proper":true,"source":"claude"}
   ]

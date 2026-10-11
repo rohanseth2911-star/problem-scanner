@@ -2,19 +2,19 @@
 
 I did not change your Latin. Each item says what looks wrong, what I think is right, and how sure I am. You decide, and fix it in the file named.
 
-## Found by the checks (`node tools/check.js` shows these as DATA)
+## Resolved from the printed handout (photo, Oct 11)
 
-1. **`fugitāt` should probably be `fugitat`** (passage text in `passage.js`, and the verb list in your notes).
-   A long vowel becomes short before a final -t, so 1st conjugation 3rd singular is -at (vocat, amat, spectat). Your passage already has the short a in every other -at verb.
-   *Confidence: high on the rule. Check against how your textbook prints this line.*
+- `fugitāt` was a typo: the handout prints **fugitat** (short a). Fixed.
+- The name is **Syringa** (one r) everywhere. Fixed in every file.
+- Line 7 prints **Deus Pan autem** (no macron on that Pan). Copied as printed.
+- Footnote 4 ("Accusative, the name Syrinx") confirms *Syringam* is in apposition to *nōmen*. Your margin notes ("indirect statement" on *putat sē ... tenēre*, "gen" on *querellae*) match the annotations.
 
-## Found by reading
+## Still open
 
-2. **`formāt` in your verb list and `formō` in your vocab.** The passage has `fōrmat` (long ō, short a). I believe fōrma and fōrmō both have a long ō. The app uses `fōrmō` for building verb forms; your vocab line still says `formō`.
-   *Confidence: medium-high. I have not checked a dictionary.* Fix in `vocab.js`.
-3. **"Syrringa" (two r's) in the text, "SYRINGA" in the title.** I left both exactly as typed. Ask your teacher which spelling the test uses.
-4. **Passive "present" endings (`or, āris, ātur...`)** contain the 1st conjugation ā, so they only work for 1st conjugation verbs. The app only makes passive questions for 1st conjugation. *Confidence: high.*
-5. **Imperative plural rule.** Your note says "Plural: add -te", but regō → regite, not regete. I reworded the rule in `other.js` to say 3rd conjugation changes -e- to -i-. *Confidence: high.* Change it back if your teacher words it differently.
+1. **formō vs fōrmō.** The handout prints *fōrmat* (long ō). Your vocab line says `formō`; I believe it should be `fōrmō`. Fix in `vocab.js` if you agree.
+2. **benignae / fistula.** In the photo, *benīgnae* (line 12) may have a macron on the i, and *fistulam / fistulae* (lines 16 to 17) may have no macron on the i. The photo is too small to be sure. The app currently has `benignae` and `fīstula`. Check your handout.
+3. **Passive "present" endings** only work for 1st conjugation. The app only makes passive questions for 1st conjugation.
+4. **Imperative plural rule** reworded in `other.js`: 3rd conjugation changes -e- to -i- (regite).
 
 ## Things Claude added (marked `"source": "claude"`): please spot-check
 

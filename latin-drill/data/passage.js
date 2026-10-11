@@ -1,5 +1,5 @@
 /* THE PAN PASSAGE
-   "text" is my class text, copied exactly.
+   "text" is my class text, checked against the printed handout (Oct 11).
    "sentences" splits it up and annotates words. ALL annotations were written by
    Claude ("source": "claude"): check them on the Reference page against your notes.
    Word fields: w = word as written (n = which occurrence, if it appears twice),
@@ -7,7 +7,7 @@
    role (must match one of "roles"), gloss = meaning here. */
 window.LATIN_PASSAGE = {
   "title": "PĀN ET SYRINGA",
-  "text": "Ōlim erat nympha pulchra. Nōmen nymphae erat Syrringa. In Arcadiā habitābat. Centum deī et satyrī Syrringam amābant, sed Syrringa eōs nōn amābat. Quamquam Syrringa nymphās cēterās et deam Diānam amābat, tamen deōs satyrōsque fugitābat. Sē in silvā umbrōsā et dēnsā cēlābat.\nSyrringa dīxit, \"Diānae vītam meam dēvovēbō. Nūllus vir, nūllus deus mē habēbit.\"\nDeus Pān autem, dum in silvā errat, Syrringam videt et statim eam amat. Pān dīxit, \"Aeternum tē amābō.\" Syrringa autem dīxit, \"Aeternum nympha Diānae erō.\"\nDeinde nympha misera trāns agrōs et per silvās celeriter fugitāt dōnec rīpam undārum spectat. Undae fugam prohibēbant. Syrringa auxilium nymphās sīc ōrat, \"Fōrmam meam mūtāte, nymphae benignae.\" Nymphae eam in papyrōs in rīpā mūtant.\nPān autem putat sē Syrringam in bracchiīs tenēre; in bracchiīs nōn eam sed papyrōs habēbat. Dum miser Pān suspīrat trāns papyrōs, papyrī sonum querellae dant. Dēnique Pān dīxit, \"Tēcum concilium habēbō. Syrringa manēbit.\" Et cērā septem papyrōs coniungit. Ita Pān fīstulam fōrmat, et fīstulae nōmen Syrringam dat.",
+  "text": "Ōlim erat nympha pulchra. Nōmen nymphae erat Syringa. In Arcadiā habitābat. Centum deī et satyrī Syringam amābant, sed Syringa eōs nōn amābat. Quamquam Syringa nymphās cēterās et deam Diānam amābat, tamen deōs satyrōsque fugitābat. Sē in silvā umbrōsā et dēnsā cēlābat.\nSyringa dīxit, \"Diānae vītam meam dēvovēbō. Nūllus vir, nūllus deus mē habēbit.\"\nDeus Pan autem, dum in silvā errat, Syringam videt et statim eam amat. Pān dīxit, \"Aeternum tē amābō.\" Syringa autem dīxit, \"Aeternum nympha Diānae erō.\"\nDeinde nympha misera trāns agrōs et per silvās celeriter fugitat dōnec rīpam undārum spectat. Undae fugam prohibēbant. Syringa auxilium nymphās sīc ōrat, \"Fōrmam meam mūtāte, nymphae benignae.\" Nymphae eam in papyrōs in rīpā mūtant.\nPān autem putat sē Syringam in bracchiīs tenēre; in bracchiīs nōn eam sed papyrōs habēbat. Dum miser Pān suspīrat trāns papyrōs, papyrī sonum querellae dant. Dēnique Pān dīxit, \"Tēcum concilium habēbō. Syringa manēbit.\" Et cērā septem papyrōs coniungit. Ita Pān fīstulam fōrmat, et fīstulae nōmen Syringam dat.",
   "source": "claude",
 
   "roles": [
@@ -31,24 +31,24 @@ window.LATIN_PASSAGE = {
       {"w":"erat","lemma":"sum","pos":"verb","tense":"imperfect","person":3,"num":"sg","gloss":"there was"},
       {"w":"nympha","lemma":"nympha","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"a nymph"},
       {"w":"pulchra","lemma":"pulcher","pos":"adj","cas":"nom","num":"sg","gen":"f","gloss":"beautiful (agrees with nympha)"}]},
-    {"la":"Nōmen nymphae erat Syrringa.","words":[
+    {"la":"Nōmen nymphae erat Syringa.","words":[
       {"w":"Nōmen","lemma":"nōmen","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"the name"},
       {"w":"nymphae","lemma":"nympha","pos":"noun","cas":"gen","num":"sg","role":"possession (genitive)","gloss":"of the nymph"},
       {"w":"erat","lemma":"sum","pos":"verb","tense":"imperfect","person":3,"num":"sg","gloss":"was"},
-      {"w":"Syrringa","lemma":"Syrringa","pos":"noun","cas":"nom","num":"sg","role":"predicate nominative","gloss":"Syrinx"}]},
+      {"w":"Syringa","lemma":"Syringa","pos":"noun","cas":"nom","num":"sg","role":"predicate nominative","gloss":"Syrinx"}]},
     {"la":"In Arcadiā habitābat.","words":[
       {"w":"Arcadiā","lemma":"Arcadia","pos":"noun","cas":"abl","num":"sg","role":"place where (in + ablative)","gloss":"in Arcadia"},
       {"w":"habitābat","lemma":"habitō","pos":"verb","tense":"imperfect","person":3,"num":"sg","gloss":"she used to live"}]},
-    {"la":"Centum deī et satyrī Syrringam amābant, sed Syrringa eōs nōn amābat.","words":[
+    {"la":"Centum deī et satyrī Syringam amābant, sed Syringa eōs nōn amābat.","words":[
       {"w":"deī","lemma":"deus","pos":"noun","cas":"nom","num":"pl","role":"subject","gloss":"gods"},
       {"w":"satyrī","lemma":"satyrus","pos":"noun","cas":"nom","num":"pl","role":"subject","gloss":"satyrs"},
-      {"w":"Syrringam","lemma":"Syrringa","pos":"noun","cas":"acc","num":"sg","role":"direct object","gloss":"Syrinx"},
+      {"w":"Syringam","lemma":"Syringa","pos":"noun","cas":"acc","num":"sg","role":"direct object","gloss":"Syrinx"},
       {"w":"amābant","lemma":"amō","pos":"verb","tense":"imperfect","person":3,"num":"pl","gloss":"loved, were loving"},
-      {"w":"Syrringa","lemma":"Syrringa","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"Syrinx"},
+      {"w":"Syringa","lemma":"Syringa","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"Syrinx"},
       {"w":"eōs","lemma":"is","pos":"pron","cas":"acc","num":"pl","gen":"m","role":"direct object","gloss":"them"},
       {"w":"amābat","lemma":"amō","pos":"verb","tense":"imperfect","person":3,"num":"sg","gloss":"loved, was loving"}]},
-    {"la":"Quamquam Syrringa nymphās cēterās et deam Diānam amābat, tamen deōs satyrōsque fugitābat.","words":[
-      {"w":"Syrringa","lemma":"Syrringa","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"Syrinx"},
+    {"la":"Quamquam Syringa nymphās cēterās et deam Diānam amābat, tamen deōs satyrōsque fugitābat.","words":[
+      {"w":"Syringa","lemma":"Syringa","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"Syrinx"},
       {"w":"nymphās","lemma":"nympha","pos":"noun","cas":"acc","num":"pl","role":"direct object","gloss":"the nymphs"},
       {"w":"cēterās","lemma":"cēterus","pos":"adj","cas":"acc","num":"pl","gen":"f","gloss":"the other (agrees with nymphās)"},
       {"w":"deam","lemma":"dea","pos":"noun","cas":"acc","num":"sg","role":"direct object","gloss":"the goddess"},
@@ -63,8 +63,8 @@ window.LATIN_PASSAGE = {
       {"w":"umbrōsā","lemma":"umbrōsus","pos":"adj","cas":"abl","num":"sg","gen":"f","gloss":"shady"},
       {"w":"dēnsā","lemma":"dēnsus","pos":"adj","cas":"abl","num":"sg","gen":"f","gloss":"dense"},
       {"w":"cēlābat","lemma":"cēlō","pos":"verb","tense":"imperfect","person":3,"num":"sg","gloss":"was hiding"}]},
-    {"la":"Syrringa dīxit, \"Diānae vītam meam dēvovēbō.","words":[
-      {"w":"Syrringa","lemma":"Syrringa","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"Syrinx"},
+    {"la":"Syringa dīxit, \"Diānae vītam meam dēvovēbō.","words":[
+      {"w":"Syringa","lemma":"Syringa","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"Syrinx"},
       {"w":"dīxit","lemma":"dīcō","pos":"verb","tense":"perfect","person":3,"num":"sg","gloss":"said"},
       {"w":"Diānae","lemma":"Diāna","pos":"noun","cas":"dat","num":"sg","role":"indirect object (dative)","gloss":"to Diana"},
       {"w":"vītam","lemma":"vīta","pos":"noun","cas":"acc","num":"sg","role":"direct object","gloss":"life"},
@@ -76,12 +76,12 @@ window.LATIN_PASSAGE = {
       {"w":"deus","lemma":"deus","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"god"},
       {"w":"mē","lemma":"ego","pos":"pron","cas":"acc","role":"direct object","gloss":"me"},
       {"w":"habēbit","lemma":"habeō","pos":"verb","tense":"future","person":3,"num":"sg","gloss":"will have"}]},
-    {"la":"Deus Pān autem, dum in silvā errat, Syrringam videt et statim eam amat.","words":[
+    {"la":"Deus Pan autem, dum in silvā errat, Syringam videt et statim eam amat.","words":[
       {"w":"Deus","lemma":"deus","pos":"noun","cas":"nom","num":"sg","role":"apposition","gloss":"the god"},
-      {"w":"Pān","lemma":"Pān","pos":"name","cas":"nom","role":"subject","gloss":"Pan"},
+      {"w":"Pan","lemma":"Pān","pos":"name","cas":"nom","role":"subject","gloss":"Pan"},
       {"w":"silvā","lemma":"silva","pos":"noun","cas":"abl","num":"sg","role":"place where (in + ablative)","gloss":"in the forest"},
       {"w":"errat","lemma":"errō","pos":"verb","tense":"present","person":3,"num":"sg","gloss":"wanders, is wandering"},
-      {"w":"Syrringam","lemma":"Syrringa","pos":"noun","cas":"acc","num":"sg","role":"direct object","gloss":"Syrinx"},
+      {"w":"Syringam","lemma":"Syringa","pos":"noun","cas":"acc","num":"sg","role":"direct object","gloss":"Syrinx"},
       {"w":"videt","lemma":"videō","pos":"verb","tense":"present","person":3,"num":"sg","gloss":"sees"},
       {"w":"eam","lemma":"is","pos":"pron","cas":"acc","num":"sg","gen":"f","role":"direct object","gloss":"her"},
       {"w":"amat","lemma":"amō","pos":"verb","tense":"present","person":3,"num":"sg","gloss":"loves"}]},
@@ -90,18 +90,18 @@ window.LATIN_PASSAGE = {
       {"w":"dīxit","lemma":"dīcō","pos":"verb","tense":"perfect","person":3,"num":"sg","gloss":"said"},
       {"w":"tē","lemma":"tū","pos":"pron","cas":"acc","role":"direct object","gloss":"you"},
       {"w":"amābō","lemma":"amō","pos":"verb","tense":"future","person":1,"num":"sg","gloss":"I will love"}]},
-    {"la":"Syrringa autem dīxit, \"Aeternum nympha Diānae erō.\"","words":[
-      {"w":"Syrringa","lemma":"Syrringa","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"Syrinx"},
+    {"la":"Syringa autem dīxit, \"Aeternum nympha Diānae erō.\"","words":[
+      {"w":"Syringa","lemma":"Syringa","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"Syrinx"},
       {"w":"dīxit","lemma":"dīcō","pos":"verb","tense":"perfect","person":3,"num":"sg","gloss":"said"},
       {"w":"nympha","lemma":"nympha","pos":"noun","cas":"nom","num":"sg","role":"predicate nominative","gloss":"a nymph"},
       {"w":"Diānae","lemma":"Diāna","pos":"noun","cas":"gen","num":"sg","role":"possession (genitive)","gloss":"of Diana"},
       {"w":"erō","lemma":"sum","pos":"verb","tense":"future","person":1,"num":"sg","gloss":"I will be"}]},
-    {"la":"Deinde nympha misera trāns agrōs et per silvās celeriter fugitāt dōnec rīpam undārum spectat.","words":[
+    {"la":"Deinde nympha misera trāns agrōs et per silvās celeriter fugitat dōnec rīpam undārum spectat.","words":[
       {"w":"nympha","lemma":"nympha","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"the nymph"},
       {"w":"misera","lemma":"miser","pos":"adj","cas":"nom","num":"sg","gen":"f","gloss":"wretched"},
       {"w":"agrōs","lemma":"ager","pos":"noun","cas":"acc","num":"pl","role":"object of a preposition (accusative)","gloss":"across the fields"},
       {"w":"silvās","lemma":"silva","pos":"noun","cas":"acc","num":"pl","role":"object of a preposition (accusative)","gloss":"through the woods"},
-      {"w":"fugitāt","lemma":"fugitō","pos":"verb","tense":"present","person":3,"num":"sg","gloss":"flees"},
+      {"w":"fugitat","lemma":"fugitō","pos":"verb","tense":"present","person":3,"num":"sg","gloss":"flees"},
       {"w":"rīpam","lemma":"rīpa","pos":"noun","cas":"acc","num":"sg","role":"direct object","gloss":"the bank"},
       {"w":"undārum","lemma":"unda","pos":"noun","cas":"gen","num":"pl","role":"possession (genitive)","gloss":"of the waters"},
       {"w":"spectat","lemma":"spectō","pos":"verb","tense":"present","person":3,"num":"sg","gloss":"sees"}]},
@@ -109,8 +109,8 @@ window.LATIN_PASSAGE = {
       {"w":"Undae","lemma":"unda","pos":"noun","cas":"nom","num":"pl","role":"subject","gloss":"the waves"},
       {"w":"fugam","lemma":"fuga","pos":"noun","cas":"acc","num":"sg","role":"direct object","gloss":"escape"},
       {"w":"prohibēbant","lemma":"prohibeō","pos":"verb","tense":"imperfect","person":3,"num":"pl","gloss":"were blocking"}]},
-    {"la":"Syrringa auxilium nymphās sīc ōrat, \"Fōrmam meam mūtāte, nymphae benignae.\"","words":[
-      {"w":"Syrringa","lemma":"Syrringa","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"Syrinx"},
+    {"la":"Syringa auxilium nymphās sīc ōrat, \"Fōrmam meam mūtāte, nymphae benignae.\"","words":[
+      {"w":"Syringa","lemma":"Syringa","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"Syrinx"},
       {"w":"auxilium","lemma":"auxilium","pos":"noun","cas":"acc","num":"sg","role":"direct object","gloss":"(for) help"},
       {"w":"nymphās","lemma":"nympha","pos":"noun","cas":"acc","num":"pl","role":"direct object","gloss":"the nymphs (ōrō takes two accusatives)"},
       {"w":"ōrat","lemma":"ōrō","pos":"verb","tense":"present","person":3,"num":"sg","gloss":"begs"},
@@ -125,11 +125,11 @@ window.LATIN_PASSAGE = {
       {"w":"papyrōs","lemma":"papyrus","pos":"noun","cas":"acc","num":"pl","role":"object of a preposition (accusative)","gloss":"into papyrus plants"},
       {"w":"rīpā","lemma":"rīpa","pos":"noun","cas":"abl","num":"sg","role":"place where (in + ablative)","gloss":"on the bank"},
       {"w":"mūtant","lemma":"mūtō","pos":"verb","tense":"present","person":3,"num":"pl","gloss":"change"}]},
-    {"la":"Pān autem putat sē Syrringam in bracchiīs tenēre; in bracchiīs nōn eam sed papyrōs habēbat.","words":[
+    {"la":"Pān autem putat sē Syringam in bracchiīs tenēre; in bracchiīs nōn eam sed papyrōs habēbat.","words":[
       {"w":"Pān","lemma":"Pān","pos":"name","cas":"nom","role":"subject","gloss":"Pan"},
       {"w":"putat","lemma":"putō","pos":"verb","tense":"present","person":3,"num":"sg","gloss":"thinks"},
       {"w":"sē","lemma":"sē","pos":"pron","cas":"acc","role":"subject of an infinitive (indirect statement)","gloss":"(that) he"},
-      {"w":"Syrringam","lemma":"Syrringa","pos":"noun","cas":"acc","num":"sg","role":"direct object","gloss":"Syrinx"},
+      {"w":"Syringam","lemma":"Syringa","pos":"noun","cas":"acc","num":"sg","role":"direct object","gloss":"Syrinx"},
       {"w":"bracchiīs","lemma":"bracchium","pos":"noun","cas":"abl","num":"pl","role":"place where (in + ablative)","gloss":"in his arms"},
       {"w":"tenēre","lemma":"teneō","pos":"verb","mood":"infinitive","gloss":"holds (literally: to hold)"},
       {"w":"eam","lemma":"is","pos":"pron","cas":"acc","num":"sg","gen":"f","role":"direct object","gloss":"her"},
@@ -150,20 +150,20 @@ window.LATIN_PASSAGE = {
       {"w":"Tēcum","lemma":"tū","pos":"pron","cas":"abl","role":"accompaniment (cum + ablative)","gloss":"with you"},
       {"w":"concilium","lemma":"concilium","pos":"noun","cas":"acc","num":"sg","role":"direct object","gloss":"a meeting"},
       {"w":"habēbō","lemma":"habeō","pos":"verb","tense":"future","person":1,"num":"sg","gloss":"I will hold"}]},
-    {"la":"Syrringa manēbit.\"","words":[
-      {"w":"Syrringa","lemma":"Syrringa","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"Syrinx"},
+    {"la":"Syringa manēbit.\"","words":[
+      {"w":"Syringa","lemma":"Syringa","pos":"noun","cas":"nom","num":"sg","role":"subject","gloss":"Syrinx"},
       {"w":"manēbit","lemma":"maneō","pos":"verb","tense":"future","person":3,"num":"sg","gloss":"will remain"}]},
     {"la":"Et cērā septem papyrōs coniungit.","words":[
       {"w":"cērā","lemma":"cēra","pos":"noun","cas":"abl","num":"sg","role":"means (ablative, no preposition)","gloss":"with wax"},
       {"w":"papyrōs","lemma":"papyrus","pos":"noun","cas":"acc","num":"pl","role":"direct object","gloss":"papyrus plants"},
       {"w":"coniungit","lemma":"coniungō","pos":"verb","tense":"present","person":3,"num":"sg","gloss":"he joins together"}]},
-    {"la":"Ita Pān fīstulam fōrmat, et fīstulae nōmen Syrringam dat.","words":[
+    {"la":"Ita Pān fīstulam fōrmat, et fīstulae nōmen Syringam dat.","words":[
       {"w":"Pān","lemma":"Pān","pos":"name","cas":"nom","role":"subject","gloss":"Pan"},
       {"w":"fīstulam","lemma":"fīstula","pos":"noun","cas":"acc","num":"sg","role":"direct object","gloss":"a pipe"},
       {"w":"fōrmat","lemma":"fōrmō","pos":"verb","tense":"present","person":3,"num":"sg","gloss":"forms"},
       {"w":"fīstulae","lemma":"fīstula","pos":"noun","cas":"dat","num":"sg","role":"indirect object (dative)","gloss":"to the pipe"},
       {"w":"nōmen","lemma":"nōmen","pos":"noun","cas":"acc","num":"sg","role":"direct object","gloss":"the name"},
-      {"w":"Syrringam","lemma":"Syrringa","pos":"noun","cas":"acc","num":"sg","role":"apposition","gloss":"Syrinx"},
+      {"w":"Syringam","lemma":"Syringa","pos":"noun","cas":"acc","num":"sg","role":"apposition","gloss":"Syrinx"},
       {"w":"dat","lemma":"dō","pos":"verb","tense":"present","person":3,"num":"sg","gloss":"gives"}]}
   ],
 
@@ -191,7 +191,7 @@ window.LATIN_PASSAGE = {
     {"la":"Fōrmam meam mūtāte, nymphae benignae","en":"Change my form, kind nymphs","wrong":["The kind nymphs change my form","Kind nymphs changed my form","Change your form, kind nymph"]},
     {"la":"Nymphae eam in papyrōs in rīpā mūtant","en":"The nymphs change her into papyrus plants on the bank","wrong":["The nymphs change into papyrus plants on the bank","She changes the nymphs into papyrus plants","The nymphs changed her into a papyrus plant"]},
     {"la":"papyrī sonum querellae dant","en":"the papyrus plants give a sound of complaint","wrong":["the papyrus plant gives a complaint to the sound","they give the papyrus plants a sound of complaint","the papyrus plants gave a sound of complaint"]},
-    {"la":"Syrringa manēbit","en":"Syrinx will remain","wrong":["Syrinx remained","Syrinx remains","Syrinx was remaining"]},
+    {"la":"Syringa manēbit","en":"Syrinx will remain","wrong":["Syrinx remained","Syrinx remains","Syrinx was remaining"]},
     {"la":"cērā septem papyrōs coniungit","en":"with wax he joins together seven papyrus plants","wrong":["he joins seven papyrus plants to the wax","seven papyrus plants join the wax together","with wax he joined together seven papyrus plants"]},
     {"la":"Sē in silvā umbrōsā et dēnsā cēlābat","en":"She was hiding herself in the shady and dense forest","wrong":["She was hiding the shady and dense forest","She will hide herself in the shady and dense forest","The shady and dense forest was hiding her"]},
     {"la":"tamen deōs satyrōsque fugitābat","en":"nevertheless she kept fleeing from the gods and satyrs","wrong":["although she kept fleeing from the gods and satyrs","nevertheless the gods and satyrs kept fleeing from her","nevertheless she flees from the gods and satyrs"],"tags":["conj","fugere"]}

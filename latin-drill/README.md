@@ -1,6 +1,6 @@
 # Latin Drill
 
-Daily Latin ending drills for the Level 2 test on "Pan et Syrringa" (Tue Oct 13). Plain HTML, CSS and JavaScript. No install, no internet needed.
+Daily Latin ending drills for the Level 2 test on "Pan et Syringa" (Tue Oct 13). Plain HTML, CSS and JavaScript. No install, no internet needed.
 
 ## Run it
 
