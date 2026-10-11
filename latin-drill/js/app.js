@@ -372,6 +372,14 @@
   }
 
   /* ---------- events ---------- */
+  // Two-tap confirm (pop-up dialogs are blocked when the page is hosted on claude.ai).
+  function armed(el, msg) {
+    if (el.dataset.armed) return true;
+    el.dataset.armed = '1'; el.dataset.label = el.innerHTML; el.textContent = msg; el.classList.add('armed');
+    setTimeout(() => { if (el.isConnected) { delete el.dataset.armed; el.innerHTML = el.dataset.label; el.classList.remove('armed'); } }, 3000);
+    return false;
+  }
+
   app.addEventListener('click', e => {
     const el = e.target.closest('button, td.ans');
     if (!el) return;
@@ -395,8 +403,8 @@
     else if (act === 'weak') {
       const keys = weakSpots();
       startSession('weak', keys.map(qFor), { requeue: true, base: keys.length, title: 'Weak spots', onDone: s => { app.innerHTML = '<div class="card celebrate"><p class="prompt">Weak spots drilled.</p></div>' + missList(s.results) + '<button class="btn primary wide" data-act="home">Home</button>'; } });
-    } else if (act === 'quit') { if (confirm('Quit? Progress in this set will not count toward your streak.')) home(); }
-    else if (act === 'reset') { if (confirm('Erase all progress and your streak?')) { try { localStorage.removeItem(KEY); } catch (err) {} location.reload(); } }
+    } else if (act === 'quit') { if (armed(el, 'Tap again to quit')) home(); }
+    else if (act === 'reset') { if (armed(el, 'Tap again to erase all progress')) { try { localStorage.removeItem(KEY); } catch (err) {} location.reload(); } }
   });
   app.addEventListener('submit', e => {
     e.preventDefault();
