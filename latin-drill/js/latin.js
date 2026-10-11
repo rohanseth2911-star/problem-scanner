@@ -49,12 +49,50 @@
     { id: 'vocab', name: 'Vocab' },
     { id: 'passage', name: 'Pan passage' }
   ];
+  if (root.LATIN_SETTINGS && root.LATIN_SETTINGS.mode === 'course' && root.LATIN_COURSE) TOPICS.push({ id: 'course', name: 'New vocab' });
 
   const nounBy = l => N.words.find(w => w.lemma === l);
   const adjBy = l => A.words.find(w => w.lemma === l);
   const verbBy = l => V.words.find(w => w.lemma === l);
   const parts = s => s.split(',').map(x => nfc(x.trim()));
   const trapNote = tags => (tags || []).filter(t => TRAPS[t]).map(t => 'Trap: ' + TRAPS[t]).join(' ');
+
+  /* ---------- general course vocab (settings.js "mode": "course") ---------- */
+  const SETTINGS = root.LATIN_SETTINGS || {};
+  const COURSE_ON = SETTINGS.mode === 'course' && !!root.LATIN_COURSE;
+  const COURSE_LEMMAS = new Set(), COURSE_ORDER = [];
+  let UNLOCKED = new Set();
+  const known = w => !w.course || UNLOCKED.has(w.lemma || w.la);
+  const POS_OF = { noun: 'noun', verb: 'verb', adj: 'adj' };
+  function courseKind(c) { return c.parts ? 'verb' : c.gen ? 'noun' : c.dict ? 'adj' : c.pos; }
+  if (COURSE_ON) {
+    root.LATIN_COURSE.units.forEach((u, ui) => u.words.forEach(c => {
+      const la = nfc(c.la), kind = courseKind(c);
+      if (VOC.words.some(v => nfc(v.la) === la)) return; // already in the passage vocab
+      COURSE_LEMMAS.add(la); COURSE_ORDER.push(la);
+      let dict = c.dict || c.la;
+      if (kind === 'noun') {
+        dict = c.la + ', ' + c.gen + ', ' + c.gender + '.';
+        const d = c.decl, g = nfc(c.gen);
+        const pat = d === '1' ? 'decl1' : d === '2' ? (c.gender === 'n' ? 'decl2n' : 'decl2m') : d === '3' ? (c.gender === 'n' ? 'decl3n' : 'decl3mf') : null;
+        const cut = d === '1' ? 2 : d === '2' ? 1 : 2;
+        if (pat && !N.words.some(w => w.lemma === la))
+          N.words.push({ lemma: la, gen: g, gender: c.gender, pattern: pat, stem: g.slice(0, -cut), en: c.en, overrides: c.overrides, note: c.note, course: true, unit: ui });
+      }
+      if (kind === 'verb') {
+        dict = c.parts;
+        if (/^[1-4]$/.test(c.conj) && !V.words.some(w => w.lemma === la))
+          V.words.push({ lemma: la, parts: c.parts, conj: c.conj, en: c.en, noPassive: c.noPassive, course: true, unit: ui });
+      }
+      if (kind === 'adj' && (c.decl === '12' || c.decl === '3') && !A.words.some(w => w.lemma === la)) {
+        const f = parts(c.dict), w = { lemma: la, dict: c.dict, en: c.en, course: true, unit: ui };
+        if (c.decl === '12') { w.pattern = 'bonus'; w.stem = f[1].slice(0, -1); if (f[0] !== w.stem + 'us') w.overrides = { 'sg m nom': f[0] }; }
+        else { w.pattern = 'fortis'; w.stem = f[0].slice(0, -2); }
+        A.words.push(w);
+      }
+      VOC.words.push({ la, dict, en: c.en, pos: POS_OF[kind] || c.pos || 'other', tags: c.tags, course: true, unit: ui, kind });
+    }));
+  }
 
   /* ---------- forms ---------- */
   function nounForms(w) {
@@ -241,7 +279,7 @@
   }
 
   function adjItems() {
-    const out = [], nouns = N.words.filter(w => !w.proper);
+    const out = [], nouns = N.words.filter(w => !w.proper && known(w));
     A.words.forEach(w => {
       const P = adjForms(w);
       P.forEach(e => out.push(item('a:' + w.lemma + ':' + e.num + ':' + e.gen + ':' + e.cas, 'adjectives', e.tags, () => {
@@ -353,9 +391,9 @@
 
   function vocabItems() {
     const W = VOC.words;
-    return W.map(v => item('vo:' + v.la, 'vocab', v.tags || [], () => {
+    return W.map(v => item('vo:' + v.la, v.course ? 'course' : 'vocab', v.tags || [], () => {
       const others = [];
-      shuffle(W.filter(x => x !== v)).forEach(x => { if (!overlap(x.en, v.en) && !others.some(o => overlap(o.en, x.en))) others.push(x); });
+      shuffle(W.filter(x => x !== v && known(x))).forEach(x => { if (!overlap(x.en, v.en) && !others.some(o => overlap(o.en, x.en))) others.push(x); });
       const sameP = others.filter(x => x.pos === v.pos), pool = sameP.length >= 3 ? sameP : others;
       const shown = v.dict || v.la, reason = shown + ' = ' + v.en + '. ' + trapNote(v.tags);
       if (Math.random() < 0.5) return mc(v.en, pool.map(x => x.en), { prompt: 'What does ' + B(shown) + ' mean?', reason });
@@ -439,7 +477,7 @@
   function items() {
     if (ITEMS) return ITEMS;
     ITEMS = [].concat(nounItems(), adjItems(), verbItems(), otherItems(), vocabItems(), passageItems());
-    BY_KEY = {}; ITEMS.forEach(it => { BY_KEY[it.key] = it; });
+    BY_KEY = {}; ITEMS.forEach(it => { BY_KEY[it.key] = it; const l = it.key.split(':')[1]; it.course = COURSE_LEMMAS.has(l) ? l : null; });
     return ITEMS;
   }
   const byKey = k => (items(), BY_KEY[k]);
@@ -487,6 +525,10 @@
     CASES, CASE_NAME, NUM_NAME, GEN_NAME, TENSES, TENSE_NAME, PERSON, TOPICS, TRAPS,
     nounForms, adjForms, pronForms, verbForms, passiveForms, imperativeOf, meaning, conjModel, parts,
     nounBy, adjBy, verbBy, contextParse, findToken, underline,
-    items, byKey, question, testPart1, testPart2, grade
+    items, byKey, question, testPart1, testPart2, grade,
+    COURSE_ON, COURSE_ORDER, COURSE_LEMMAS,
+    setUnlocked: list => { UNLOCKED = new Set(list || []); },
+    available: it => !it.course || UNLOCKED.has(it.course),
+    vocabEntry: la => VOC.words.find(v => nfc(v.la) === nfc(la))
   };
 })(typeof window !== 'undefined' ? window : globalThis);

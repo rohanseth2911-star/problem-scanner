@@ -111,6 +111,35 @@
     const p1 = L.testPart1(15);
     p1.length === 15 && p1.every(q => q.kind === 'mc') ? pass('practice test Part 1 has 15 multiple choice questions') : fail('practice test Part 1', p1.length + ' questions, kinds ' + p1.map(q => q.kind).join(','));
 
+    // 3b. General course vocab (only in "course" mode).
+    if (L.COURSE_ON) {
+      const bad = [], INF = { 1: 'āre', 2: 'ēre', 3: 'ere', 4: 'īre', '3io': 'ere' }, GEN = { 1: 'ae', 2: 'ī', 3: 'is', 4: 'ūs', 5: 'ēī' };
+      root.LATIN_COURSE.units.forEach(u => u.words.forEach(c => {
+        const la = L.nfc(c.la);
+        if (c.parts) {
+          const pp = L.parts(c.parts);
+          if (pp[0] !== la) bad.push(la + ': first principal part differs');
+          if (INF[c.conj] && !pp[1].endsWith(INF[c.conj])) bad.push(la + ': infinitive ' + pp[1] + ' does not fit conjugation ' + c.conj);
+        } else if (c.gen) {
+          const g = L.nfc(c.gen);
+          if (!(g.endsWith(GEN[c.decl]) || (c.decl === '5' && g.endsWith('eī')))) bad.push(la + ': genitive ' + g + ' does not fit declension ' + c.decl);
+        } else if (c.dict) {
+          if (L.parts(c.dict)[0] !== la) bad.push(la + ': dictionary entry starts differently');
+        }
+        if (!L.byKey('vo:' + la)) bad.push(la + ': no vocab question');
+      }));
+      bad.length ? data('course vocab entries', bad.join('; ')) : pass('course vocab: every entry fits its declension or conjugation and has a vocab question', L.COURSE_ORDER.length + ' new words');
+      const formsBad = [];
+      L.items().filter(it => it.course && /^n:/.test(it.key)).forEach(it => {
+        const [, l, num, cas] = it.key.split(':');
+        if (num === 'sg' && cas === 'gen') {
+          const w = L.nounBy(l), f = L.nounForms(w).find(e => e.num === 'sg' && e.cas === 'gen').form;
+          if (f !== L.nfc(w.gen)) formsBad.push(l + ' builds ' + f + ' not ' + w.gen);
+        }
+      });
+      formsBad.length ? fail('course noun genitives', formsBad.join('; ')) : pass('course nouns rebuild their own genitive singular');
+    }
+
     // 4. Answer matching.
     const mt = [['vocabant', 'vocābant'], ['VOCĀBANT', 'vocābant'], [' vocābant ', 'vocābant'], ['amatus est', 'amātus est'], ['Rege!', 'rege']];
     const mBad = mt.filter(([a, b]) => !L.matches(a, [b]));

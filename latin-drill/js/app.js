@@ -55,12 +55,30 @@
     for (const x of arr) { r -= w(x); if (r <= 0) return x; }
     return arr[arr.length - 1];
   }
-  const TOPIC_WEIGHT = { nouns: 2, adjectives: 1.5, tenses: 2, perfect: 2, passive: 1, imperatives: 1, cases: 2, pronouns: 1, vocab: 2, passage: 3 };
+  const TOPIC_WEIGHT = L.COURSE_ON
+    ? { course: 5, nouns: 2, adjectives: 1.5, tenses: 2, perfect: 2, passive: 1, imperatives: 1, cases: 1, pronouns: 1, vocab: 1, passage: 0.5 }
+    : { nouns: 2, adjectives: 1.5, tenses: 2, perfect: 2, passive: 1, imperatives: 1, cases: 2, pronouns: 1, vocab: 2, passage: 3 };
 
-  function buildDaily() {
-    const n = SET.dailySetSize || 15, t = today(), all = L.items(), keys = [];
+  /* ---------- general course: a few new words unlock each day ---------- */
+  S.course = S.course || { unlocked: [], introDay: null };
+  L.setUnlocked(S.course.unlocked);
+  function unlockToday() {
+    if (!L.COURSE_ON || S.course.introDay === today()) return [];
+    const fresh = L.COURSE_ORDER.filter(l => !S.course.unlocked.includes(l)).slice(0, SET.newWordsPerDay || 5);
+    S.course.unlocked = S.course.unlocked.concat(fresh); S.course.introDay = today();
+    L.setUnlocked(S.course.unlocked); save();
+    return fresh;
+  }
+  function introQ(la) {
+    const v = L.vocabEntry(la);
+    return { kind: 'intro', key: null, prompt: 'New word', la: v.dict || v.la, en: v.en, pos: v.pos, display: v.en };
+  }
+
+  function buildDaily(fresh) {
+    const n = SET.dailySetSize || 15, t = today(), all = L.items().filter(L.available), keys = [];
     const add = k => { if (!keys.includes(k) && L.byKey(k) && keys.length < n) keys.push(k); };
     S.missQueue.forEach(add); S.missQueue = [];
+    (fresh || []).forEach(l => add('vo:' + l));
     const due = Object.keys(S.items).filter(k => { const r = S.items[k]; return r.b >= 1 && r.b < 5 && r.due && r.due <= t; })
       .sort((a, b) => (S.items[a].b - S.items[b].b) || (S.items[a].due < S.items[b].due ? -1 : 1));
     due.slice(0, 9).forEach(add);
@@ -68,7 +86,7 @@
     for (let guard = 0; keys.length < n && guard < 300; guard++) {
       const topic = weightedPick(topics, x => TOPIC_WEIGHT[x]);
       let pool = all.filter(it => it.topic === topic && !S.items[it.key] && !keys.includes(it.key));
-      if (!pool.length) pool = all.filter(it => it.topic === topic && !keys.includes(it.key) && (S.items[it.key].b || 0) < 5);
+      if (!pool.length) pool = all.filter(it => it.topic === topic && !keys.includes(it.key) && ((S.items[it.key] || {}).b || 0) < 5);
       if (pool.length) add(weightedPick(pool, it => (it.trap ? 2 : 1)).key);
     }
     due.slice(9).forEach(add);
@@ -91,6 +109,7 @@
     let body = '';
     if (q.kind === 'mc') body = '<div class="choices">' + q.choices.map((c, i) => '<button class="choice" data-i="' + i + '">' + esc(c) + '</button>').join('') + '</div>';
     if (q.kind === 'type') body = '<form class="typed" autocomplete="off"><input id="ans" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Type the Latin" aria-label="Your answer"><button class="btn primary">Check</button></form><p class="hint">Macrons are optional.</p>';
+    if (q.kind === 'intro') body = '<p class="newword la">' + esc(q.la) + '</p><p class="prompt">' + esc(q.en) + '</p><p class="sub">' + esc(q.pos) + '. Say it out loud once, then tap Got it.</p><button class="btn primary wide" data-act="next">Got it</button>';
     if (q.kind === 'tap') body = '<div class="tokens">' + q.tokens.map((t, i) => '<button class="tok" data-i="' + i + '">' + esc(t) + '</button>').join('') + '</div>';
     app.innerHTML =
       '<div class="bar"><button class="link" data-act="quit" aria-label="Quit">&#x2715;</button>' +
@@ -102,7 +121,7 @@
     tickTimer();
     const inp = document.getElementById('ans');
     if (inp) inp.focus();
-    SES.answered = false;
+    SES.answered = q.kind === 'intro';
   }
 
   function answer(given) {
@@ -164,9 +183,11 @@
     const weak = weakSpots();
     app.innerHTML =
       '<header class="head"><h1>Latin <em>Drill</em></h1>' +
-      (left >= 0 ? '<span class="mono">' + (left === 0 ? 'Test is today' : left + (left === 1 ? ' day' : ' days') + ' to test') + '</span>' : '') + '</header>' +
+      (left >= 0 && !L.COURSE_ON ? '<span class="mono">' + (left === 0 ? 'Test is today' : left + (left === 1 ? ' day' : ' days') + ' to test') + '</span>' : '') + '</header>' +
       '<section class="card streak"><div class="big">' + streak + '</div><div class="bigl">day streak</div>' +
-      '<div class="dots">' + dots.join('') + '</div><p class="sub">Longest streak: ' + S.streak.longest + '</p></section>' +
+      '<div class="dots">' + dots.join('') + '</div><p class="sub">Longest streak: ' + S.streak.longest + '</p>' +
+      (L.COURSE_ON ? '<p class="sub">Words learned: ' + S.course.unlocked.length + ' of ' + L.COURSE_ORDER.length + (S.course.introDay === t ? '' : '. ' + Math.min(SET.newWordsPerDay || 5, L.COURSE_ORDER.length - S.course.unlocked.length) + ' new today') + '</p>' : '') +
+      '</section>' +
       '<button class="btn primary wide xl" data-act="daily">' + (doneToday ? 'Do another set' : 'Start today\'s set') + '</button>' +
       (doneToday ? '<p class="hint center">Today is done. Come back tomorrow to keep your streak.</p>' : '<p class="hint center">' + (SET.dailySetSize || 15) + ' questions, about 5 minutes</p>') +
       '<div class="grid"><button class="btn" data-act="quiz">Quiz</button><button class="btn" data-act="test">Practice test</button><button class="btn" data-act="ref">Reference</button></div>' +
@@ -181,9 +202,9 @@
   }
 
   function startDaily() {
-    const keys = buildDaily();
-    startSession('daily', keys.map(qFor), {
-      requeue: true, base: keys.length, title: 'Today\'s set',
+    const fresh = unlockToday(), keys = buildDaily(fresh);
+    startSession('daily', fresh.map(introQ).concat(keys.map(qFor)), {
+      requeue: true, base: keys.length + fresh.length, title: fresh.length ? fresh.length + ' new words, then today\'s set' : 'Today\'s set',
       onDone: s => { finishDay(); doneDaily(s); }
     });
   }
@@ -214,7 +235,8 @@
       '<button class="btn primary wide xl" data-act="quizgo">Start quiz</button>';
   }
   function startQuiz() {
-    const pool = L.shuffle(L.items().filter(it => it.topic === quizTopic));
+    const pool = L.shuffle(L.items().filter(it => it.topic === quizTopic && L.available(it)));
+    if (!pool.length) { app.querySelector('[data-act=quizgo]').textContent = 'No words unlocked yet. Do a daily set first.'; return; }
     const chosen = [];
     while (chosen.length < quizLen && pool.length) {
       const it = weightedPick(pool, x => (x.trap ? 2 : 1) * (S.items[x.key] && S.items[x.key].b >= 4 ? 0.3 : 1));
@@ -364,6 +386,8 @@
       table(['word', 'form', 'role', 'meaning'], s.words.map(a => [a.w,
         [a.lemma, a.tense && L.TENSE_NAME[a.tense], a.person && a.person + (a.num === 'pl' ? ' pl' : ' sg'), a.mood, a.cas && L.CASE_NAME[a.cas], !a.person && a.num, a.gen].filter(Boolean).join(' '),
         a.role || '', a.gloss]))).join(''));
+    if (L.COURSE_ON) window.LATIN_COURSE.units.forEach(u => sec(u.name, table(['Latin', 'English', 'learned'],
+      u.words.map(c => { const v = L.vocabEntry(c.la) || c; return [v.dict || v.la, v.en, !L.COURSE_LEMMAS.has(L.nfc(c.la)) || S.course.unlocked.includes(L.nfc(c.la)) ? '\u2713' : '']; }))));
     sec('Model translation', '<p class="model">' + esc(T.model).replace(/\n/g, '<br><br>') + '</p>');
     app.innerHTML = '<div class="bar"><button class="link" data-act="home">&#x2190; Home</button>' +
       '<label class="check inline"><input type="checkbox" id="blur"' + (blur ? ' checked' : '') + '> Quiz me (hide answers)</label></div>' +

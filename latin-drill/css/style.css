@@ -131,3 +131,4 @@ tbody th{color:var(--ink2);font-weight:600;white-space:nowrap}
 .blur td.ans{filter:blur(6px);cursor:pointer;user-select:none;transition:filter .15s}
 .blur td.ans.show{filter:none}
 .link.armed{font-weight:700;text-decoration-thickness:2px}
+.newword{font-size:34px;font-weight:700;line-height:1.2;margin:4px 0 10px;text-wrap:balance}
