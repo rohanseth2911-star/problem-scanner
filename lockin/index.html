@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0f12">
+<title>LockIn</title>
+<style>
+/* One narrow column with a tab bar at the bottom. Dark only, on purpose. */
+:root{
+  --bg:#0d0f12; --card:#171a1f; --card2:#21252c; --line:#323843;
+  --text:#f4f5f7; --muted:#b9bfc9; --accent:#8fe3d0; --accent-ink:#04211b;
+  --amber:#ffc24d; --amber-ink:#2a1c00; --red:#ff9a8f;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:17px;line-height:1.45}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#app{max-width:620px;margin:0 auto;padding:14px 16px calc(96px + env(safe-area-inset-bottom,0px))}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0 12px}
+.logo{font-size:24px;font-weight:800;letter-spacing:-.01em}
+.logo b{color:var(--accent)}
+.meta{text-align:right;font-size:14px;color:var(--muted)}
+.meta strong{color:var(--text);font-size:16px}
+.notice{border:2px dashed var(--amber);color:var(--amber);border-radius:12px;padding:8px 12px;margin-bottom:12px;font-size:15px}
+h2{font-size:21px;margin:18px 0 10px}
+h3{font-size:17px;margin:14px 0 8px;color:var(--muted);font-weight:700}
+.card{min-width:0;max-width:100%;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.sub{color:var(--muted);font-size:15px}
+.small{font-size:14px;color:var(--muted)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+.btn{min-height:48px;padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card2);font-weight:700;font-size:16px}
+.btn:active{transform:scale(.98)}
+.btn.main{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.warn{background:transparent;border:2px solid var(--amber);color:var(--amber)}
+.btn.wide{width:100%}
+.btn.armed{background:var(--amber);color:var(--amber-ink);border-color:var(--amber)}
+.btn[disabled]{opacity:.45;cursor:default}
+.link{background:none;border:0;color:var(--muted);text-decoration:underline;min-height:44px;padding:0 6px;font-size:15px}
+input[type=text],input[type=time],input[type=number],textarea{width:100%;min-height:48px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg)}
+textarea{min-height:90px;resize:vertical}
+.bar{height:12px;border-radius:99px;background:var(--card2);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--accent)}
+
+/* checklist */
+.check{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:var(--card2);text-align:left;font-size:17px}
+.check .box{flex:none;width:30px;height:30px;border-radius:9px;border:2px solid var(--muted);display:grid;place-items:center;font-weight:900}
+.check.done{background:var(--card);color:var(--muted)}
+.check.done .box{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.check.done .name{text-decoration:line-through}
+.check.amber{border:2px solid var(--amber)}
+.check.amber .box{border-color:var(--amber)}
+.badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--amber);color:var(--amber-ink);margin-top:4px}
+.badge.ok{background:var(--accent);color:var(--accent-ink)}
+.item{display:grid;gap:6px;margin-bottom:10px}
+.item .under{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 4px}
+.missnote{font-size:14px;color:var(--red)}
+.reason{border:2px solid var(--amber);border-radius:14px;padding:12px;display:grid;gap:8px}
+
+/* timeline */
+.tl{list-style:none}
+.tl li{display:grid;grid-template-columns:88px 1fr;gap:10px;padding:9px 6px;border-bottom:1px solid var(--line);font-size:16px}
+.tl li:last-child{border-bottom:0}
+.tl .t{font-family:var(--mono);font-size:14px;color:var(--muted);padding-top:2px;font-variant-numeric:tabular-nums}
+.tl li.now{background:var(--card2);border-radius:10px;border-bottom-color:transparent}
+.tl li.now .t{color:var(--accent);font-weight:700}
+.tl li.past{opacity:.55}
+
+/* timer */
+.clock{font-family:var(--mono);font-size:68px;font-weight:700;text-align:center;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1;margin:10px 0}
+.earned{display:block;text-align:center;font-size:20px;font-weight:900;color:var(--accent-ink);background:var(--accent);border-radius:14px;padding:12px;margin-bottom:12px}
+
+/* week editor */
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{min-height:44px;min-width:46px;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card2);font-weight:700;font-size:15px}
+.chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.chip.today{outline:2px solid var(--accent);outline-offset:1px}
+.blk{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.blk .full{grid-column:1/-1}
+.toggle{display:flex;align-items:center;gap:10px;min-height:48px;font-size:16px}
+.toggle input{width:24px;height:24px;accent-color:var(--accent);flex:none}
+.hab{padding:10px 0;border-bottom:1px solid var(--line)}
+.step{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.big{font-size:44px;font-weight:800;font-variant-numeric:tabular-nums}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center}
+.tabs .in{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;width:100%;max-width:620px}
+.tab{min-height:54px;border:0;border-radius:12px;background:transparent;color:var(--muted);font-weight:700;font-size:15px}
+.tab.on{background:var(--card2);color:var(--text)}
+.tab .dot{display:block;width:6px;height:6px;border-radius:50%;background:var(--amber);margin:2px auto 0}
+input[type=file]{max-width:100%;font-size:15px}
+pre.out{max-width:100%;white-space:pre-wrap;word-break:break-all;font-family:var(--mono);font-size:12px;max-height:180px;overflow:auto;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- time: America/New_York, day ends at 4:00 AM, week is Mon to Sun ---------- */
+  var NY = 'America/New_York';
+  var partsFmt = new Intl.DateTimeFormat('en-US', { timeZone: NY, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  var clockFmt = new Intl.DateTimeFormat('en-US', { timeZone: NY, hour: 'numeric', minute: '2-digit' });
+  var dayFmt = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' });
+  var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
+
+  function nyParts(ms) {
+    var p = {};
+    partsFmt.formatToParts(new Date(ms)).forEach(function (x) { p[x.type] = x.value; });
+    return { y: +p.year, m: +p.month, d: +p.day, h: (+p.hour) % 24, mi: +p.minute, s: +p.second };
+  }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function keyOf(y, m, d) { return y + '-' + pad(m) + '-' + pad(d); }
+  function k2d(k) { var a = k.split('-').map(Number); return new Date(Date.UTC(a[0], a[1] - 1, a[2])); }
+  function addDays(k, n) { return new Date(k2d(k).getTime() + n * 864e5).toISOString().slice(0, 10); }
+  function wd(k) { return k2d(k).getUTCDay(); }
+  function today() {
+    var p = nyParts(Date.now()), k = keyOf(p.y, p.m, p.d);
+    return p.h < 4 ? addDays(k, -1) : k;
+  }
+  function weekOf(k) { return addDays(k, -((wd(k) + 6) % 7)); }
+  function nowMinutes() { var p = nyParts(Date.now()); return p.h * 60 + p.mi + (p.h < 4 ? 1440 : 0); }
+  // Absolute time (ms) of a New York wall-clock time on a given date.
+  function nyToMs(k, hh, mm) {
+    var a = k.split('-').map(Number), guess = Date.UTC(a[0], a[1] - 1, a[2], hh, mm);
+    for (var i = 0; i < 2; i++) {
+      var p = nyParts(guess), shown = Date.UTC(p.y, p.m - 1, p.d, p.h, p.mi);
+      guess += Date.UTC(a[0], a[1] - 1, a[2], hh, mm) - shown;
+    }
+    return guess;
+  }
+  function dayLabel(k) { return dayFmt.format(k2d(k)); }
+  function clockAt(ms) { return clockFmt.format(new Date(ms)); }
+  function toMin(hm) { var a = (hm || '').split(':'); return a.length < 2 ? null : (+a[0]) * 60 + (+a[1]); }
+  function fmtHM(hm) {
+    var m = toMin(hm); if (m === null) return '';
+    var h = Math.floor(m / 60) % 24, mi = m % 60, ap = h < 12 ? 'AM' : 'PM', h12 = h % 12 || 12;
+    return h12 + ':' + pad(mi) + ' ' + ap;
+  }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function oneSentence(s) { return String(s || '').trim().split(/\s+/).filter(Boolean).length >= 3; }
+  function uid() { return Math.random().toString(36).slice(2, 9); }
+
+  /* ---------- habits ---------- */
+  var ALL = [0, 1, 2, 3, 4, 5, 6];
+  var PHASES = [
+    null,
+    { name: 'Foundation', span: 'weeks 1 to 4' },
+    { name: 'Focus', span: 'months 2 to 3' },
+    { name: 'Craft', span: 'months 4 to 6' },
+    { name: 'Mastery', span: 'months 7 to 12' }
+  ];
+  var HABITS = [
+    { id: 'wake', phase: 1, kind: 'daily', days: ALL, name: 'Wake up within 30 min of {wake}' },
+    { id: 'phone', phase: 1, kind: 'daily', days: ALL, name: 'Phone outside the bedroom at bedtime' },
+    { id: 'drinks', phase: 1, kind: 'daily', days: ALL, name: 'Water bottle at school, plain milk at meals, no sugary drinks' },
+    { id: 'reset', phase: 1, kind: 'weekly', sunday: true, name: '15-minute Sunday Reset' },
+    { id: 'first45', phase: 2, kind: 'daily', days: [1, 2, 3, 4], name: 'First 45 on the hardest homework. Try first, then write one sentence on what was hard' },
+    { id: 'move', phase: 2, kind: 'daily', days: [0, 1, 3, 4, 6], name: '20 minutes of movement (no tennis today)' },
+    { id: 'food', phase: 2, kind: 'daily', days: ALL, name: '80/20 food' },
+    { id: 'spf', phase: 2, kind: 'daily', days: ALL, name: 'SPF 30' },
+    { id: 'hook', phase: 3, kind: 'daily', days: [3, 4], name: 'Hook-first speaking bullets' },
+    { id: 'film', phase: 3, kind: 'weekly', name: 'Film review (20secondNews or debate)' },
+    { id: 'paper', phase: 3, kind: 'daily', days: [5], name: '10 minutes of paper before code' },
+    { id: 'chess', phase: 3, kind: 'daily', days: [5], name: '3 blindfold chess puzzles on the subway' },
+    { id: 'postloss', phase: 4, kind: 'weekly', name: 'Post-loss analysis before engine or key' },
+    { id: 'readme', phase: 4, kind: 'weekly', name: 'README for each project' },
+    { id: 'techbiz', phase: 4, kind: 'weekly', name: 'Tech plus business problem check' },
+    { id: 'listen', phase: 4, kind: 'daily', days: ALL, name: 'Full-attention listening' }
+  ];
+  var BAD = [
+    { id: 'water', name: 'Drink water' },
+    { id: 'hw', name: '15 minutes on the most urgent homework' },
+    { id: 'phone', name: 'Phone outside the bedroom at night' }
+  ];
+  function habitById(id) { for (var i = 0; i < HABITS.length; i++) if (HABITS[i].id === id) return HABITS[i]; return null; }
+  function cfg(h) { var c = S.habits[h.id] || {}; return { active: c.active !== false, days: c.days || h.days || ALL }; }
+  function habitName(h) { return h.name.replace('{wake}', fmtHM(S.settings.wake)); }
+  function dailyFor(k) {
+    return HABITS.filter(function (h) { var c = cfg(h); return h.kind === 'daily' && h.phase <= S.phase && c.active && c.days.indexOf(wd(k)) >= 0; });
+  }
+  function weeklyFor(k) {
+    return HABITS.filter(function (h) { return h.kind === 'weekly' && h.phase <= S.phase && cfg(h).active && (!h.sunday || wd(k) === 0); });
+  }
+  function weeklyAll() { return HABITS.filter(function (h) { return h.kind === 'weekly' && h.phase <= S.phase && cfg(h).active; }); }
+
+  /* ---------- schedule (starting values) ---------- */
+  function B(s, e, t) { return { s: s, e: e || '', t: t }; }
+  function defaultSchedule() {
+    var school = function (rest) {
+      return [B('06:30', '', 'Wake up'), B('07:08', '', 'School bus leaves'), B('10:30', '11:05', 'Lunch'), B('15:00', '15:45', 'SGI')]
+        .concat(rest, [B('22:00', '', 'Phone on the charger, outside the bedroom')]);
+    };
+    var debate = school([B('15:45', '17:30', 'Speech and Debate'), B('17:30', '18:30', 'Dinner'), B('18:30', '19:15', 'First 45'),
+      B('19:15', '20:30', 'Homework or debate prep'), B('20:30', '22:00', 'Relax')]);
+    return {
+      1: school([B('15:45', '17:30', 'Investment Society and PDMC'), B('17:30', '18:30', 'Dinner'), B('18:30', '19:15', 'First 45'),
+        B('19:30', '20:00', 'Piano'), B('20:00', '20:30', 'Homework'), B('20:30', '22:00', 'Relax')]),
+      2: school([B('17:00', '18:30', 'Tennis (near home)'), B('18:45', '19:30', 'Dinner'), B('19:30', '20:15', 'First 45'),
+        B('20:15', '21:00', 'Homework'), B('21:00', '22:00', 'Short relax')]),
+      3: debate,
+      4: JSON.parse(JSON.stringify(debate)),
+      5: school([B('15:45', '17:00', 'Hack Club'), B('17:00', '17:30', 'Train and bus to Columbia'), B('17:30', '19:30', 'Tennis at Columbia'),
+        B('20:15', '21:00', 'Light work only'), B('21:00', '22:00', 'Relax')]),
+      6: [B('07:00', '', 'Wake up (30 min sleep-in at most)'), B('09:00', '15:00', 'Free time, piano, friends'),
+        B('15:30', '19:00', 'Michigan football with family'), B('19:00', '21:00', 'Free time'), B('22:00', '', 'Phone on the charger, outside the bedroom')],
+      0: [B('07:00', '', 'Wake up (30 min sleep-in at most)'), B('09:00', '17:00', 'Free time'), B('17:00', '17:15', 'Sunday Reset'),
+        B('17:15', '18:30', 'Crimson or competition prep'), B('18:30', '20:30', 'Homework and week setup'), B('20:30', '22:00', 'Early wind down'),
+        B('22:00', '', 'Phone on the charger, outside the bedroom')]
+    };
+  }
+
+  /* ---------- storage: every read and write wrapped ---------- */
+  var KEY = 'lockin.v1', saving = true;
+  function defaultState() {
+    var t = today();
+    return {
+      v: 1, created: t,
+      settings: { wake: '06:30', weekdayGames: false, relaxMin: 60 },
+      phase: 1, phaseStart: t, habits: {}, schedule: defaultSchedule(),
+      editMode: true, lockUntil: null,
+      days: {}, weeks: {},
+      weeklyItems: [{ id: uid(), text: 'Crimson prep for Dakota' }, { id: uid(), text: 'Competition deadlines' }, { id: uid(), text: 'Piano practice' }],
+      unlocks: [], timer: null, earned: null, task: ''
+    };
+  }
+  function merge(base, data) {
+    var s = Object.assign(base, data || {});
+    s.settings = Object.assign(defaultState().settings, s.settings || {});
+    return s;
+  }
+  function load() {
+    try {
+      localStorage.setItem(KEY + '.test', '1'); localStorage.removeItem(KEY + '.test');
+      var raw = localStorage.getItem(KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { saving = false; return null; }
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); }
+    catch (e) { saving = false; }
+  }
+  var S = merge(defaultState(), load());
+
+  function dayRec(k) { return S.days[k] || (S.days[k] = { done: {}, missed: {}, bad: false, bd: {}, tour: false, relaxUsed: 0 }); }
+  function weekRec(w) { return S.weeks[w] || (S.weeks[w] = { wdone: {}, wmissed: {}, items: {}, reset: null, draft: '' }); }
+
+  /* ---------- definitions: done, missed, streak, rate ---------- */
+  function dueIds(k) {
+    var r = S.days[k];
+    if (r && r.due) return r.due;
+    return dailyFor(k).map(function (h) { return h.id; });
+  }
+  function complete(k) {
+    var r = S.days[k], ids = dueIds(k);
+    if (r && r.bad) return BAD.every(function (b) { return r.bd[b.id]; });
+    return ids.every(function (id) { return r && r.done[id]; });
+  }
+  function missedOn(k, id) {
+    var r = S.days[k];
+    if (dueIds(k).indexOf(id) < 0) return false;
+    if (r && r.bad) return !complete(k);
+    return !(r && r.done[id]);
+  }
+  function streak() {
+    var t = today(), n = complete(t) ? 1 : 0, d = addDays(t, -1);
+    while (d >= S.created && complete(d) && n < 5000) { n++; d = addDays(d, -1); }
+    return n;
+  }
+  function weekRate(w) {
+    var t = today(), due = 0, done = 0;
+    for (var i = 0; i < 7; i++) {
+      var d = addDays(w, i);
+      if (d > t || d < S.created) continue;
+      var r = S.days[d];
+      if (r && r.bad) { due += 3; done += BAD.filter(function (b) { return r.bd[b.id]; }).length; continue; }
+      var ids = dueIds(d);
+      due += ids.length;
+      done += ids.filter(function (id) { return r && r.done[id]; }).length;
+    }
+    if (addDays(w, 6) >= S.created && w <= t) {
+      var wr = S.weeks[w] || { wdone: {} };
+      weeklyAll().forEach(function (h) { due++; if (wr.wdone[h.id]) done++; });
+    }
+    return due ? { due: due, done: done, pct: Math.round(100 * done / due) } : null;
+  }
+  // Habits missed two due days in a row inside a week (days before today only).
+  function twiceFlags(w) {
+    var t = today(), out = [];
+    HABITS.filter(function (h) { return h.kind === 'daily'; }).forEach(function (h) {
+      var hits = [];
+      for (var i = 1; i < 7; i++) {
+        var d = addDays(w, i), p = addDays(d, -1);
+        if (d >= t || p < S.created) continue;
+        if (missedOn(d, h.id) && missedOn(p, h.id)) hits.push(DAYS[wd(p)] + ' and ' + DAYS[wd(d)]);
+      }
+      if (hits.length) out.push({ h: h, hits: hits });
+    });
+    return out;
+  }
+  // Never Miss Twice: habits missed yesterday that are due today.
+  function savers() {
+    var t = today(), y = addDays(t, -1), out = {};
+    if (y < S.created) return out;
+    var r = S.days[y];
+    if (r && r.bad && complete(y)) return out;
+    var todayIds = dueIds(t);
+    dueIds(y).forEach(function (id) { if (!(r && r.done[id]) && todayIds.indexOf(id) >= 0) out[id] = true; });
+    return out;
+  }
+  function badLeft() {
+    var w = weekOf(today()), used = 0;
+    for (var i = 0; i < 7; i++) { var r = S.days[addDays(w, i)]; if (r && r.bad) used++; }
+    return 2 - used;
+  }
+  function nextSunday(k) { return addDays(k, wd(k) === 0 ? 7 : 7 - wd(k)); }
+
+  /* ---------- timer: stores the start time, remaining time comes from the clock ---------- */
+  function tenPM(k) { return nyToMs(k, 22, 0); }
+  function isWeekend(k) { var d = wd(k); return d === 0 || d === 6; }
+  function relaxNeedsEarned(k) { var d = wd(k); return d >= 1 && d <= 4; }
+  function weekendLeft(k) { return Math.max(0, 120 - Math.round(dayRec(k).relaxUsed || 0)); }
+  function finishTimer() {
+    var tm = S.timer;
+    if (!tm || Date.now() < tm.end) return false;
+    if (tm.kind === 'focus') S.earned = { day: tm.day };
+    else { var r = dayRec(tm.day); r.relaxUsed = (r.relaxUsed || 0) + (tm.end - tm.start) / 60000; UI.relaxOver = true; }
+    S.timer = null; save();
+    return true;
+  }
+  function stopTimer() {
+    var tm = S.timer; if (!tm) return;
+    if (tm.kind === 'relax') { var r = dayRec(tm.day); r.relaxUsed = (r.relaxUsed || 0) + (Math.min(Date.now(), tm.end) - tm.start) / 60000; }
+    S.timer = null; save();
+  }
+  function remainingText() {
+    if (!S.timer) return '';
+    var ms = Math.max(0, S.timer.end - Date.now()), s = Math.ceil(ms / 1000);
+    return pad(Math.floor(s / 60)) + ':' + pad(s % 60);
+  }
+
+  /* ---------- UI state ---------- */
+  var UI = { tab: 'today', reason: null, unlock: false, day: null, step: 1, armed: null, msg: '', relaxOver: false, showExport: false, importText: '', importFile: null };
+  var app = document.getElementById('app');
+
+  function armBtn(act, label, armedLabel, cls, extra) {
+    var on = UI.armed === act;
+    return '<button class="btn ' + (cls || '') + (on ? ' armed' : '') + '" data-act="' + act + '"' + (extra || '') + '>' + (on ? armedLabel : label) + '</button>';
+  }
+
+  function render() {
+    finishTimer();
+    var t = today(), rec = dayRec(t);
+    if (!rec.bad) rec.due = dailyFor(t).map(function (h) { return h.id; });
+    save();
+    var st = streak(), ph = PHASES[S.phase];
+    var h = '<header class="top"><div class="logo">Lock<b>In</b></div>' +
+      '<div class="meta"><strong>Streak ' + st + '</strong><br>' + dayLabel(t) + ' &middot; Phase ' + S.phase + '</div></header>';
+    if (!saving) h += '<div class="notice">Not saving. Your data will be lost when this page closes. Use Export to keep a copy.</div>';
+    h += ({ today: viewToday, timer: viewTimer, week: viewWeek, reset: viewReset, more: viewMore })[UI.tab]();
+    var resetDue = wd(t) === 0 && !(weekRec(weekOf(t)).reset);
+    h += '<nav class="tabs"><div class="in">' + [['today', 'Today'], ['timer', 'First 45'], ['week', 'Week'], ['reset', 'Reset'], ['more', 'More']].map(function (x) {
+      return '<button class="tab' + (UI.tab === x[0] ? ' on' : '') + '" data-tab="' + x[0] + '">' + x[1] + (x[0] === 'reset' && resetDue ? '<span class="dot"></span>' : '') + '</button>';
+    }).join('') + '</div></nav>';
+    app.innerHTML = h;
+  }
+
+  /* ---------- Today ---------- */
+  function reasonForm(kind, id) {
+    return '<div class="reason"><label class="sub" for="reasonText">Why did you miss it? One sentence.</label>' +
+      '<input type="text" id="reasonText" autocomplete="off" placeholder="I missed it because...">' +
+      (UI.msg ? '<div class="missnote">' + esc(UI.msg) + '</div>' : '') +
+      '<div class="row"><button class="btn main" data-act="savemiss" data-kind="' + kind + '" data-id="' + id + '">Save</button>' +
+      '<button class="link" data-act="cancelmiss">Cancel</button></div></div>';
+  }
+  function habitRow(kind, h, done, missed, saver) {
+    var key = kind + ':' + h.id;
+    var out = '<div class="item"><button class="check' + (done ? ' done' : '') + (saver && !done ? ' amber' : '') + '" data-act="toggle" data-kind="' + kind + '" data-id="' + h.id + '">' +
+      '<span class="box">' + (done ? '&#10003;' : '') + '</span><span class="grow"><span class="name">' + esc(habitName(h)) + '</span>' +
+      (saver && !done ? '<br><span class="badge">Save the streak</span>' : '') + '</span></button>';
+    if (UI.reason === key) out += reasonForm(kind, h.id);
+    else out += '<div class="under"><span class="missnote">' + (missed ? 'Missed: ' + esc(missed) : '') + '</span>' +
+      (done ? '' : '<button class="link" data-act="miss" data-kind="' + kind + '" data-id="' + h.id + '">' + (missed ? 'Change reason' : 'Log as missed') + '</button>') + '</div>';
+    return out + '</div>';
+  }
+  function viewToday() {
+    var t = today(), r = dayRec(t), w = weekOf(t), wr = weekRec(w), rate = weekRate(w), sv = savers(), left = badLeft();
+    var h = '<div class="card"><div class="row"><span class="grow"><b>This week</b> <span class="sub">' + (rate ? rate.done + ' of ' + rate.due + ' done' : 'Nothing due yet') + '</span></span><b>' + (rate ? rate.pct + '%' : '') + '</b></div>' +
+      '<div class="bar"><i style="width:' + (rate ? rate.pct : 0) + '%"></i></div></div>';
+    if (r.bad) {
+      var allBad = BAD.every(function (b) { return r.bd[b.id]; });
+      h += '<h2>Bad Day: just these 3</h2><p class="sub" style="margin-bottom:10px">Finish all 3 and your streak is safe.</p>';
+      BAD.forEach(function (b) {
+        h += '<div class="item"><button class="check' + (r.bd[b.id] ? ' done' : '') + '" data-act="badtoggle" data-id="' + b.id + '"><span class="box">' + (r.bd[b.id] ? '&#10003;' : '') + '</span><span class="grow name">' + esc(b.name) + '</span></button></div>';
+      });
+      if (allBad) h += '<p><span class="badge ok">Streak kept</span></p>';
+      h += '<button class="link" data-act="badoff">Back to a normal day</button>';
+    } else {
+      var daily = dailyFor(t), weekly = weeklyFor(t);
+      h += '<h2>Today</h2>';
+      if (!daily.length) h += '<p class="sub">No daily habits today.</p>';
+      daily.forEach(function (x) { h += habitRow('d', x, r.done[x.id], r.missed[x.id], sv[x.id]); });
+      if (weekly.length) {
+        h += '<h3>This week</h3>';
+        weekly.forEach(function (x) { h += habitRow('w', x, wr.wdone[x.id], wr.wmissed[x.id], false); });
+      }
+      h += left > 0 ? '<button class="btn warn wide" data-act="badon">Bad day? Shrink today to 3 things (' + left + ' left this week)</button>'
+        : '<p class="sub">No Bad Days left this week.</p>';
+    }
+    // schedule timeline
+    var d = wd(t), blocks = (S.schedule[d] || []).slice().sort(function (a, b) { return toMin(a.s) - toMin(b.s); });
+    var weekend = d === 0 || d === 6;
+    if (weekend && r.tour) blocks = blocks.filter(function (b) { return toMin(b.s) < 17 * 60 || /phone/i.test(b.t); });
+    var now = nowMinutes();
+    h += '<h2>Schedule</h2>';
+    if (weekend) h += '<label class="toggle"><input type="checkbox" data-set="tour"' + (r.tour ? ' checked' : '') + '> Tournament day (hide evening blocks)</label>';
+    h += '<div class="card" style="padding:6px"><ul class="tl">' + blocks.map(function (b) {
+      var s = toMin(b.s), e = b.e ? toMin(b.e) : s + 1;
+      var cls = now >= s && now < e ? 'now' : now >= e ? 'past' : '';
+      return '<li class="' + cls + '"><span class="t">' + fmtHM(b.s) + '</span><span>' + esc(b.t) + (b.e ? '<span class="small"> until ' + fmtHM(b.e) + '</span>' : '') + '</span></li>';
+    }).join('') + '</ul></div>';
+    return h;
+  }
+
+  /* ---------- First 45 timer ---------- */
+  function viewTimer() {
+    var t = today(), r = dayRec(t), tm = S.timer, h = '<h2>First 45</h2>';
+    if (tm && tm.kind === 'focus') {
+      return h + '<div class="card"><p class="sub">The one hard task:</p><p><b>' + esc(tm.task) + '</b></p>' +
+        '<div class="clock" id="tval">' + remainingText() + '</div><p class="sub" style="text-align:center">Ends at ' + clockAt(tm.end) + '. Keep the phone away.</p></div>' +
+        armBtn('stoptimer', 'Stop early', 'Tap again to stop (no Earned Relax)', 'wide');
+    }
+    if (tm && tm.kind === 'relax') {
+      return h + '<span class="earned">Relax time</span><div class="card"><div class="clock" id="tval">' + remainingText() + '</div>' +
+        '<p class="sub" style="text-align:center">Stops on its own at ' + clockAt(tm.end) + '.</p><p style="margin-top:8px">' + relaxHint(t) + '</p></div>' +
+        '<button class="btn wide" data-act="stoprelax">End relax now</button>';
+    }
+    var earned = S.earned && S.earned.day === t, after10 = Date.now() >= tenPM(t);
+    if (UI.relaxOver) { h += '<div class="card"><b>Relax is over.</b> <span class="sub">Phone on the charger at 10:00 PM.</span></div>'; }
+    var canRelax = earned || !relaxNeedsEarned(t);
+    if (canRelax) {
+      var cap = isWeekend(t) ? weekendLeft(t) : 120, def = Math.min(isWeekend(t) ? cap : S.settings.relaxMin, cap);
+      if (earned) h += '<span class="earned">Earned Relax</span>';
+      h += '<div class="card"><b>Relax timer</b><p class="sub" style="margin:4px 0 10px">' + relaxHint(t) + '</p>';
+      if (after10) h += '<p>It is past 10:00 PM. No relax time now. Phone on the charger.</p>';
+      else if (isWeekend(t) && cap <= 0) h += '<p>You used your 2 hours today.</p>';
+      else h += '<label class="sub" for="rlen">Minutes</label><div class="row"><input type="number" id="rlen" min="5" max="' + cap + '" value="' + def + '" style="max-width:120px">' +
+        '<button class="btn main grow" data-act="startrelax">Start relax</button></div><p class="small" style="margin-top:6px">Stops at 10:00 PM or when time is up, whichever is first.</p>';
+      h += '</div>';
+    }
+    var mins = r.bad ? 15 : 45;
+    h += '<div class="card"><label for="task"><b>What is the ONE hard task for this block?</b></label>' +
+      '<input type="text" id="task" style="margin:10px 0" autocomplete="off" value="' + esc(S.task) + '" placeholder="Example: Chem problem set, questions 1 to 6">' +
+      (UI.msg ? '<p class="missnote" style="margin-bottom:8px">' + esc(UI.msg) + '</p>' : '') +
+      '<button class="btn main wide" data-act="startfocus" data-min="' + mins + '">Start ' + mins + ' minutes</button>' +
+      (r.bad ? '<p class="small" style="margin-top:6px">Bad Day mode: 15 minutes counts.</p>' : '') +
+      (relaxNeedsEarned(t) && !earned ? '<p class="small" style="margin-top:6px">Finish it to earn relax time.</p>' : '') + '</div>';
+    return h;
+  }
+  function relaxHint(t) {
+    if (isWeekend(t)) return 'Weekend: games or YouTube are OK, about 2 hours total today. ' + weekendLeft(t) + ' min left.';
+    if (S.settings.weekdayGames) return 'Games or YouTube are OK tonight.';
+    return 'School night: try piano, chess, or reading. No games or YouTube.';
+  }
+
+  /* ---------- Week: schedule, habits, lock ---------- */
+  function lockCard() {
+    var t = today();
+    if (S.editMode) {
+      return '<div class="card"><b>Edit Mode is on.</b><p class="sub" style="margin:4px 0 10px">Change your time blocks and habits, then lock the week.</p>' +
+        armBtn('lockweek', 'Lock Week', 'Tap again to lock until Sunday', 'main wide') + '</div>';
+    }
+    var h = '<div class="card"><b>Week locked.</b> <span class="sub">Changes open at the Sunday Reset' + (S.lockUntil ? ' (' + dayLabel(S.lockUntil) + ')' : '') + '.</span>';
+    if (UI.unlock) {
+      h += '<div class="reason" style="margin-top:10px"><label class="sub" for="unlockText">Emergency unlock. Why do you need to change the plan now? One sentence.</label>' +
+        '<input type="text" id="unlockText" autocomplete="off">' + (UI.msg ? '<div class="missnote">' + esc(UI.msg) + '</div>' : '') +
+        '<div class="row"><button class="btn main" data-act="unlock">Unlock</button><button class="link" data-act="unlockcancel">Cancel</button></div></div>';
+    } else h += '<div style="margin-top:8px"><button class="link" data-act="unlockopen">Emergency unlock</button></div>';
+    return h + '</div>';
+  }
+  function viewWeek() {
+    var t = today(), w = weekOf(t), wr = weekRec(w), sel = UI.day === null ? wd(t) : UI.day, ed = S.editMode;
+    var h = '<h2>Week</h2>' + lockCard();
+    if (S.weeklyItems.length) {
+      h += '<h3>This week\'s list</h3>';
+      S.weeklyItems.forEach(function (it) {
+        var done = wr.items[it.id];
+        h += '<div class="item"><button class="check' + (done ? ' done' : '') + '" data-act="itemtoggle" data-id="' + it.id + '"><span class="box">' + (done ? '&#10003;' : '') + '</span><span class="grow name">' + esc(it.text) + '</span></button></div>';
+      });
+    }
+    h += '<h3>Schedule</h3><div class="chips">' + WEEK_ORDER.map(function (d) {
+      return '<button class="chip' + (d === sel ? ' on' : '') + (d === wd(t) ? ' today' : '') + '" data-act="pickday" data-d="' + d + '">' + DAYS[d] + '</button>';
+    }).join('') + '</div>';
+    var blocks = (S.schedule[sel] || []).map(function (b, i) { return { b: b, i: i }; }).sort(function (a, b) { return toMin(a.b.s) - toMin(b.b.s); });
+    h += '<div class="card" style="margin-top:10px">';
+    if (ed) {
+      blocks.forEach(function (x) {
+        h += '<div class="blk"><input type="time" aria-label="Start" value="' + esc(x.b.s) + '" data-blk="s" data-d="' + sel + '" data-i="' + x.i + '">' +
+          '<input type="time" aria-label="End" value="' + esc(x.b.e) + '" data-blk="e" data-d="' + sel + '" data-i="' + x.i + '">' +
+          '<input class="full" type="text" aria-label="What" value="' + esc(x.b.t) + '" data-blk="t" data-d="' + sel + '" data-i="' + x.i + '">' +
+          '<button class="link" style="justify-self:start" data-act="delblock" data-d="' + sel + '" data-i="' + x.i + '">Remove</button></div>';
+      });
+      h += '<button class="btn wide" style="margin-top:10px" data-act="addblock" data-d="' + sel + '">Add a block</button>';
+    } else {
+      h += '<ul class="tl">' + blocks.map(function (x) {
+        return '<li><span class="t">' + fmtHM(x.b.s) + '</span><span>' + esc(x.b.t) + (x.b.e ? '<span class="small"> until ' + fmtHM(x.b.e) + '</span>' : '') + '</span></li>';
+      }).join('') + '</ul>';
+    }
+    h += '</div>';
+    if (ed) {
+      h += '<h3>Habits (Phase ' + S.phase + ')</h3><div class="card">';
+      HABITS.filter(function (x) { return x.phase <= S.phase; }).forEach(function (x) {
+        var c = cfg(x);
+        h += '<div class="hab"><label class="toggle"><input type="checkbox" data-hab="' + x.id + '"' + (c.active ? ' checked' : '') + '> ' + esc(habitName(x)) + '</label>';
+        if (x.kind === 'daily') h += '<div class="chips">' + WEEK_ORDER.map(function (d) {
+          return '<button class="chip' + (c.days.indexOf(d) >= 0 ? ' on' : '') + '" data-act="habday" data-id="' + x.id + '" data-d="' + d + '">' + DAYS[d] + '</button>';
+        }).join('') + '</div>';
+        else h += '<span class="small">' + (x.sunday ? 'Sundays only' : 'Once a week') + '</span>';
+        h += '</div>';
+      });
+      h += '</div><h3>Settings</h3><div class="card">' +
+        '<label class="sub" for="wake">Fixed wake-up time</label><input type="time" id="wake" data-set="wake" value="' + esc(S.settings.wake) + '">' +
+        '<label class="toggle" style="margin-top:8px"><input type="checkbox" data-set="weekdayGames"' + (S.settings.weekdayGames ? ' checked' : '') + '> Weekday relax allows games or YouTube</label>' +
+        '<label class="sub" for="relaxMin">Weekday relax length (minutes)</label><input type="number" id="relaxMin" min="15" max="120" data-set="relaxMin" value="' + S.settings.relaxMin + '"></div>';
+    } else {
+      h += '<p class="small">Weekday relax allows games or YouTube: ' + (S.settings.weekdayGames ? 'On' : 'Off') + '. Wake-up time: ' + fmtHM(S.settings.wake) + '.</p>';
+    }
+    return h;
+  }
+
+  /* ---------- Sunday Reset ---------- */
+  function viewReset() {
+    var t = today(), w = weekOf(t), wr = weekRec(w), nextW = addDays(w, 7);
+    var h = '<h2>Sunday Reset</h2>';
+    if (wd(t) !== 0) {
+      h += '<div class="card"><p>The Sunday Reset opens on <b>' + dayLabel(nextSunday(t)) + '</b> at about 5:00 PM. It takes about 15 minutes.</p></div>';
+      var lastW = addDays(w, -7), last = S.weeks[lastW] && S.weeks[lastW].reset;
+      if (last) h += '<div class="card"><b>Last reset</b><p class="sub">' + esc(last.reflection) + '</p></div>';
+      return h;
+    }
+    if (wr.reset) {
+      return h + '<div class="card"><span class="badge ok">Done</span><p style="margin-top:8px">Week locked. Good work.</p><p class="sub">' + esc(wr.reset.reflection) + '</p></div>';
+    }
+    var step = UI.step;
+    h += '<p class="step">Step ' + step + ' of 4</p>';
+    if (step === 1) {
+      var rate = weekRate(w), prev = weekRate(addDays(w, -7)), flags = twiceFlags(w);
+      h += '<div class="card"><b>This week</b><div class="big">' + (rate ? rate.pct + '%' : 'No data') + '</div>' +
+        (rate ? '<div class="bar"><i style="width:' + rate.pct + '%"></i></div><p class="sub" style="margin-top:6px">' + rate.done + ' of ' + rate.due + ' habits done.' + (prev ? ' Last week: ' + prev.pct + '%.' : '') + '</p>' : '') + '</div>';
+      h += '<div class="card"><b>Never Miss Twice</b>' + (flags.length ? flags.map(function (f) {
+        return '<p style="margin-top:6px"><span class="badge">Missed twice</span> ' + esc(habitName(f.h)) + '<br><span class="small">' + f.hits.join(', ') + '</span></p>';
+      }).join('') : '<p class="sub">No habit was missed two days in a row.</p>') + '</div>';
+      h += '<button class="btn main wide" data-act="step" data-n="2">Next</button>';
+    } else if (step === 2) {
+      h += '<div class="card"><label for="refl"><b>One sentence: what worked, or what slipped?</b></label><textarea id="refl" style="margin-top:10px">' + esc(wr.draft) + '</textarea>' +
+        (UI.msg ? '<p class="missnote">' + esc(UI.msg) + '</p>' : '') + '</div>' +
+        '<div class="row"><button class="btn" data-act="step" data-n="1">Back</button><button class="btn main grow" data-act="reflnext">Next</button></div>';
+    } else if (step === 3) {
+      h += '<div class="card"><b>Weekly list for next week</b><p class="sub" style="margin-bottom:8px">Add or remove items.</p>' +
+        S.weeklyItems.map(function (it) {
+          return '<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><span class="grow">' + esc(it.text) + '</span><button class="link" data-act="itemdel" data-id="' + it.id + '">Remove</button></div>';
+        }).join('') +
+        '<div class="row" style="margin-top:10px"><input type="text" id="newItem" class="grow" placeholder="Example: Debate case due Friday" autocomplete="off"><button class="btn" data-act="itemadd">Add</button></div></div>' +
+        '<div class="row"><button class="btn" data-act="step" data-n="2">Back</button><button class="btn main grow" data-act="step" data-n="4">Next</button></div>';
+    } else {
+      h += '<div class="card"><b>Next week</b>' + WEEK_ORDER.map(function (d) {
+        var bl = (S.schedule[d] || []).slice().sort(function (a, b) { return toMin(a.s) - toMin(b.s); })
+          .filter(function (b) { return toMin(b.s) >= 15 * 60 + 45 && !/phone/i.test(b.t); }).map(function (b) { return b.t; });
+        return '<p style="margin-top:6px"><b>' + DAYS[d] + '</b> <span class="sub">' + esc(bl.join(', ') || 'No evening blocks') + '</span></p>';
+      }).join('') + '<p class="small" style="margin-top:8px">Phase ' + S.phase + ': ' + PHASES[S.phase].name + ' (' + PHASES[S.phase].span + ')</p></div>';
+      if (!S.editMode) h += '<button class="btn wide" data-act="editon" style="margin-bottom:10px">Change schedule or habits</button>';
+      else h += '<p class="sub" style="margin-bottom:10px">Edit Mode is on. Make changes on the Week tab, then come back here.</p>';
+      if (S.phase < 4) h += armBtn('nextphase', 'Move to Phase ' + (S.phase + 1) + ': ' + PHASES[S.phase + 1].name, 'Tap again to start Phase ' + (S.phase + 1), 'wide', ' style="margin-bottom:10px"');
+      h += '<div class="row"><button class="btn" data-act="step" data-n="3">Back</button>' + armBtn('resetlock', 'Lock Week', 'Tap again to lock', 'main grow') + '</div>';
+    }
+    return h;
+  }
+
+  /* ---------- More: backup and logs ---------- */
+  function viewMore() {
+    var ph = PHASES[S.phase], weeksIn = Math.floor((k2d(today()) - k2d(S.phaseStart)) / (7 * 864e5)) + 1;
+    var h = '<h2>More</h2><div class="card"><b>Phase ' + S.phase + ': ' + ph.name + '</b> <span class="sub">(' + ph.span + ')</span>' +
+      '<p class="sub">Started ' + dayLabel(S.phaseStart) + '. This is week ' + weeksIn + '. You can move to the next phase during the Sunday Reset.</p></div>';
+    h += '<h3>Backup</h3><div class="card"><p class="sub" style="margin-bottom:10px">Export saves everything. Import replaces everything.</p>' +
+      '<div class="row"><button class="btn main" data-act="export">Export</button><button class="btn" data-act="copy">Copy backup</button></div>' +
+      (UI.showExport ? '<pre class="out" id="exportText" style="margin-top:10px">' + esc(JSON.stringify(S)) + '</pre>' : '') +
+      '<label class="sub" for="importFile" style="display:block;margin-top:14px">Import from a file</label><input type="file" id="importFile" accept=".json,application/json" style="margin:6px 0">' +
+      (UI.importFile ? '<p class="small">Picked: ' + esc(UI.importFile.name) + '</p>' : '') +
+      '<label class="sub" for="importText">Or paste a backup</label><textarea id="importText" placeholder="Paste backup text here">' + esc(UI.importText) + '</textarea>' +
+      '<div style="margin-top:8px">' + armBtn('import', 'Import', 'Tap again to replace all data', 'wide') + '</div>' +
+      (UI.msg ? '<p style="margin-top:8px"><b>' + esc(UI.msg) + '</b></p>' : '') + '</div>';
+    h += '<h3>Emergency unlocks</h3><div class="card">' + (S.unlocks.length ? S.unlocks.slice().reverse().map(function (u) {
+      return '<p style="margin-bottom:6px"><b>' + dayLabel(u.date) + '</b> <span class="sub">' + esc(u.reason) + '</span></p>';
+    }).join('') : '<p class="sub">None yet.</p>') + '</div>';
+    return h;
+  }
+
+  /* ---------- actions ---------- */
+  function exportText() { return JSON.stringify(S, null, 1); }
+  function doImport(text) {
+    var data;
+    try { data = JSON.parse(text); } catch (e) { UI.msg = 'That backup could not be read.'; return; }
+    if (!data || data.v !== 1 || typeof data.days !== 'object' || typeof data.schedule !== 'object') { UI.msg = 'That is not a LockIn backup.'; return; }
+    S = merge(defaultState(), data); save();
+    UI.msg = 'Backup restored.';
+  }
+
+  app.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-act],[data-tab]');
+    if (!el) return;
+    var act = el.dataset.act, t = today(), r = dayRec(t), w = weekOf(t), wr = weekRec(w);
+    var armedBefore = UI.armed; UI.armed = null;
+    if (el.dataset.tab) { UI.tab = el.dataset.tab; UI.msg = ''; UI.reason = null; UI.unlock = false; UI.relaxOver = false; return render(); }
+    var id = el.dataset.id, kind = el.dataset.kind;
+    var need2 = function () { if (armedBefore === act) return true; UI.armed = act; render(); return false; };
+    UI.msg = '';
+    switch (act) {
+      case 'toggle':
+        if (kind === 'd') { r.done[id] = !r.done[id]; if (r.done[id]) delete r.missed[id]; }
+        else { wr.wdone[id] = !wr.wdone[id]; if (wr.wdone[id]) delete wr.wmissed[id]; }
+        UI.reason = null; break;
+      case 'miss': UI.reason = kind + ':' + id; render(); var inp = document.getElementById('reasonText'); if (inp) inp.focus(); return;
+      case 'cancelmiss': UI.reason = null; break;
+      case 'savemiss':
+        var txt = (document.getElementById('reasonText') || {}).value || '';
+        if (!oneSentence(txt)) { UI.msg = 'Write one full sentence first.'; render(); return; }
+        if (kind === 'd') { r.missed[id] = txt.trim(); r.done[id] = false; } else { wr.wmissed[id] = txt.trim(); wr.wdone[id] = false; }
+        UI.reason = null; break;
+      case 'badon': if (badLeft() > 0) r.bad = true; break;
+      case 'badoff': r.bad = false; r.bd = {}; break;
+      case 'badtoggle': r.bd[id] = !r.bd[id]; break;
+      case 'startfocus':
+        var task = (document.getElementById('task') || {}).value || '';
+        if (!task.trim()) { UI.msg = 'Write the one hard task first.'; render(); return; }
+        var mins = +el.dataset.min, start = Date.now();
+        S.task = task.trim(); S.timer = { kind: 'focus', task: S.task, start: start, end: start + mins * 60000, day: t };
+        break;
+      case 'stoptimer': if (!need2()) return; stopTimer(); break;
+      case 'startrelax':
+        var len = Math.round(+((document.getElementById('rlen') || {}).value || 0));
+        var cap = isWeekend(t) ? weekendLeft(t) : 120;
+        len = Math.max(1, Math.min(len || 0, cap));
+        var s0 = Date.now(), end = Math.min(s0 + len * 60000, tenPM(t));
+        if (end <= s0) { UI.msg = 'It is past 10:00 PM.'; break; }
+        S.timer = { kind: 'relax', start: s0, end: end, day: t }; S.earned = null; UI.relaxOver = false;
+        break;
+      case 'stoprelax': stopTimer(); UI.relaxOver = true; break;
+      case 'lockweek': if (!need2()) return; S.editMode = false; S.lockUntil = nextSunday(t); break;
+      case 'unlockopen': UI.unlock = true; render(); var u = document.getElementById('unlockText'); if (u) u.focus(); return;
+      case 'unlockcancel': UI.unlock = false; break;
+      case 'unlock':
+        var why = (document.getElementById('unlockText') || {}).value || '';
+        if (!oneSentence(why)) { UI.msg = 'Write one full sentence first.'; render(); return; }
+        S.unlocks.push({ date: t, at: Date.now(), reason: why.trim() }); S.editMode = true; UI.unlock = false; break;
+      case 'pickday': UI.day = +el.dataset.d; break;
+      case 'addblock': if (S.editMode) (S.schedule[el.dataset.d] = S.schedule[el.dataset.d] || []).push(B('12:00', '', 'New block')); break;
+      case 'delblock': if (S.editMode) S.schedule[el.dataset.d].splice(+el.dataset.i, 1); break;
+      case 'habday':
+        if (!S.editMode) break;
+        var hb = habitById(id), c = cfg(hb), d = +el.dataset.d, days = c.days.slice(), at = days.indexOf(d);
+        if (at >= 0) days.splice(at, 1); else days.push(d);
+        S.habits[id] = Object.assign({}, S.habits[id], { days: days }); break;
+      case 'itemtoggle': wr.items[id] = !wr.items[id]; break;
+      case 'step': UI.step = +el.dataset.n; break;
+      case 'reflnext':
+        var refl = (document.getElementById('refl') || {}).value || '';
+        wr.draft = refl.trim();
+        if (!oneSentence(refl)) { UI.msg = 'Write one full sentence first.'; save(); render(); return; }
+        UI.step = 3; break;
+      case 'itemadd':
+        var ni = ((document.getElementById('newItem') || {}).value || '').trim();
+        if (ni) S.weeklyItems.push({ id: uid(), text: ni }); break;
+      case 'itemdel': S.weeklyItems = S.weeklyItems.filter(function (x) { return x.id !== id; }); break;
+      case 'editon': if (wd(t) === 0) { S.editMode = true; UI.tab = 'week'; } break;
+      case 'nextphase': if (!need2()) return; if (wd(t) === 0 && S.phase < 4) { S.phase++; S.phaseStart = t; } break;
+      case 'resetlock':
+        if (!need2()) return;
+        var rate = weekRate(w);
+        wr.reset = { at: Date.now(), reflection: wr.draft, pct: rate ? rate.pct : null };
+        wr.wdone.reset = true; S.editMode = false; S.lockUntil = nextSunday(t); UI.step = 1; break;
+      case 'export':
+        UI.showExport = true;
+        try {
+          var blob = new Blob([exportText()], { type: 'application/json' }), a = document.createElement('a');
+          a.href = URL.createObjectURL(blob); a.download = 'lockin-backup-' + t + '.json';
+          document.body.appendChild(a); a.click(); a.remove();
+          UI.msg = 'Backup saved. If no file appeared, use Copy backup.';
+        } catch (err) { UI.msg = 'Download blocked here. Use Copy backup.'; }
+        break;
+      case 'copy':
+        UI.showExport = true;
+        var text = exportText();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function () { UI.msg = 'Backup copied.'; render(); }, function () { UI.msg = 'Copy blocked. Select the text below and copy it.'; render(); });
+        } else UI.msg = 'Select the text below and copy it.';
+        break;
+      case 'import':
+        var pasted = UI.importText, file = UI.importFile;
+        if (!pasted.trim() && !file) { UI.msg = 'Pick a file or paste a backup first.'; break; }
+        if (!need2()) return;
+        UI.importText = ''; UI.importFile = null;
+        if (pasted.trim()) doImport(pasted);
+        else {
+          var fr = new FileReader();
+          fr.onload = function () { doImport(String(fr.result)); render(); };
+          fr.onerror = function () { UI.msg = 'That file could not be read.'; render(); };
+          fr.readAsText(file); return;
+        }
+        break;
+    }
+    save(); render();
+  });
+
+  app.addEventListener('change', function (e) {
+    var el = e.target, t = today();
+    if (el.id === 'importFile') { UI.importFile = el.files && el.files[0] || null; UI.armed = null; return render(); }
+    if (el.dataset.blk && S.editMode) {
+      var b = S.schedule[el.dataset.d][+el.dataset.i];
+      if (b) b[el.dataset.blk] = el.value;
+    } else if (el.dataset.hab && S.editMode) {
+      S.habits[el.dataset.hab] = Object.assign({}, S.habits[el.dataset.hab], { active: el.checked });
+    } else if (el.dataset.set === 'tour') {
+      dayRec(t).tour = el.checked;
+    } else if (el.dataset.set && S.editMode) {
+      var k = el.dataset.set;
+      S.settings[k] = k === 'weekdayGames' ? el.checked : k === 'relaxMin' ? Math.max(15, Math.min(120, +el.value || 60)) : el.value;
+    } else return;
+    save(); render();
+  });
+  app.addEventListener('input', function (e) {
+    if (e.target.id === 'task') { S.task = e.target.value; save(); }
+    if (e.target.id === 'refl') { weekRec(weekOf(today())).draft = e.target.value; save(); }
+    if (e.target.id === 'importText') UI.importText = e.target.value;
+  });
+  app.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' || e.target.tagName !== 'INPUT') return;
+    var map = { reasonText: 'savemiss', unlockText: 'unlock', task: 'startfocus', newItem: 'itemadd' };
+    var act = map[e.target.id]; if (!act) return;
+    var btn = app.querySelector('[data-act="' + act + '"]'); if (btn) { e.preventDefault(); btn.click(); }
+  });
+
+  // Tick: the clock decides what is left; the interval only redraws.
+  setInterval(function () {
+    if (!S.timer) return;
+    if (finishTimer()) return render();
+    var el = document.getElementById('tval'); if (el) el.textContent = remainingText();
+  }, 1000);
+  var lastDay = today();
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible') return;
+    var focused = document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName);
+    if (S.timer || today() !== lastDay || !focused) { lastDay = today(); render(); }
+  });
+  setInterval(function () { if (today() !== lastDay) { lastDay = today(); render(); } }, 60000);
+
+  window.__lockin = { state: function () { return S; }, today: today, nyToMs: nyToMs, streak: streak, weekRate: weekRate };
+  render();
+})();
+</script>
+</body>
+</html>
