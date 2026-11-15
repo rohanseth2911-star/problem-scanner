@@ -196,7 +196,7 @@ pre.out{max-width:100%;white-space:pre-wrap;word-break:break-all;font-family:var
   function B(s, e, t) { return { s: s, e: e || '', t: t }; }
   function defaultSchedule() {
     var school = function (rest) {
-      return [B('06:30', '', 'Wake up'), B('07:08', '', 'School bus leaves'), B('10:30', '11:05', 'Lunch'), B('15:00', '15:45', 'SGI')]
+      return [B('06:00', '', 'Wake up'), B('07:08', '', 'School bus leaves'), B('10:30', '11:05', 'Lunch'), B('15:00', '15:45', 'SGI')]
         .concat(rest, [B('22:00', '', 'Phone on the charger, outside the bedroom')]);
     };
     var debate = school([B('15:45', '17:30', 'Speech and Debate'), B('17:30', '18:30', 'Dinner'), B('18:30', '19:15', 'First 45'),
@@ -210,9 +210,9 @@ pre.out{max-width:100%;white-space:pre-wrap;word-break:break-all;font-family:var
       4: JSON.parse(JSON.stringify(debate)),
       5: school([B('15:45', '17:00', 'Hack Club'), B('17:00', '17:30', 'Train and bus to Columbia'), B('17:30', '19:30', 'Tennis at Columbia'),
         B('20:15', '21:00', 'Light work only'), B('21:00', '22:00', 'Relax')]),
-      6: [B('07:00', '', 'Wake up (30 min sleep-in at most)'), B('09:00', '15:00', 'Free time, piano, friends'),
+      6: [B('06:30', '', 'Wake up (30 min sleep-in at most)'), B('09:00', '15:00', 'Free time, piano, friends'),
         B('15:30', '19:00', 'Michigan football with family'), B('19:00', '21:00', 'Free time'), B('22:00', '', 'Phone on the charger, outside the bedroom')],
-      0: [B('07:00', '', 'Wake up (30 min sleep-in at most)'), B('09:00', '17:00', 'Free time'), B('17:00', '17:15', 'Sunday Reset'),
+      0: [B('06:30', '', 'Wake up (30 min sleep-in at most)'), B('09:00', '17:00', 'Free time'), B('17:00', '17:15', 'Sunday Reset'),
         B('17:15', '18:30', 'Crimson or competition prep'), B('18:30', '20:30', 'Homework and week setup'), B('20:30', '22:00', 'Early wind down'),
         B('22:00', '', 'Phone on the charger, outside the bedroom')]
     };
@@ -224,7 +224,7 @@ pre.out{max-width:100%;white-space:pre-wrap;word-break:break-all;font-family:var
     var t = today();
     return {
       v: 1, created: t,
-      settings: { wake: '06:30', weekdayGames: false, relaxMin: 60 },
+      settings: { wake: '06:00', weekdayGames: false, relaxMin: 60 },
       phase: 1, phaseStart: t, habits: {}, schedule: defaultSchedule(),
       editMode: true, lockUntil: null,
       days: {}, weeks: {},
@@ -249,6 +249,17 @@ pre.out{max-width:100%;white-space:pre-wrap;word-break:break-all;font-family:var
     catch (e) { saving = false; }
   }
   var S = merge(defaultState(), load());
+  // One-time update: fixed wake-up time moved from 6:30 to 6:00.
+  if (!S.wake600) {
+    if (S.settings.wake === '06:30') S.settings.wake = '06:00';
+    Object.keys(S.schedule).forEach(function (d) {
+      (S.schedule[d] || []).forEach(function (b) {
+        if (b.t === 'Wake up' && b.s === '06:30') b.s = '06:00';
+        if (/^Wake up \(30 min/.test(b.t) && b.s === '07:00') b.s = '06:30';
+      });
+    });
+    S.wake600 = true;
+  }
 
   function dayRec(k) { return S.days[k] || (S.days[k] = { done: {}, missed: {}, bad: false, bd: {}, tour: false, relaxUsed: 0 }); }
   function weekRec(w) { return S.weeks[w] || (S.weeks[w] = { wdone: {}, wmissed: {}, items: {}, reset: null, draft: '' }); }
