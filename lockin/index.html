@@ -220,6 +220,8 @@ pre.out{max-width:100%;white-space:pre-wrap;word-break:break-all;font-family:var
 
   /* ---------- storage: every read and write wrapped ---------- */
   var KEY = 'lockin.v1', saving = true;
+  // iPhone and iPad open local files in a preview that throws data away on close.
+  var iosFile = location.protocol === 'file:' && (/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
   function defaultState() {
     var t = today();
     return {
@@ -375,7 +377,8 @@ pre.out{max-width:100%;white-space:pre-wrap;word-break:break-all;font-family:var
     var st = streak(), ph = PHASES[S.phase];
     var h = '<header class="top"><div class="logo">Lock<b>In</b></div>' +
       '<div class="meta"><strong>Streak ' + st + '</strong><br>' + dayLabel(t) + ' &middot; Phase ' + S.phase + '</div></header>';
-    if (!saving) h += '<div class="notice">Not saving. Your data will be lost when this page closes. Use Export to keep a copy.</div>';
+    if (iosFile) h += '<div class="notice">Not saving. iPhone does not keep data for a file opened like this. Open the LockIn link in Safari and add it to your Home Screen.</div>';
+    else if (!saving) h += '<div class="notice">Not saving. Your data will be lost when this page closes. Use Export to keep a copy.</div>';
     h += ({ today: viewToday, timer: viewTimer, week: viewWeek, reset: viewReset, more: viewMore })[UI.tab]();
     var resetDue = wd(t) === 0 && !(weekRec(weekOf(t)).reset);
     h += '<nav class="tabs"><div class="in">' + [['today', 'Today'], ['timer', 'First 45'], ['week', 'Week'], ['reset', 'Reset'], ['more', 'More']].map(function (x) {
